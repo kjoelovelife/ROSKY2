@@ -1,0 +1,6 @@
+ROS1:
+  '18.04': melodic
+  '20.04': noetic
+ROS2:
+  '18.04': dashing
+  '20.04': foxy
