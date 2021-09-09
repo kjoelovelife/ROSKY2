@@ -17,11 +17,13 @@
 
 # Python dependencies
 ubuntu_distro=$(grep RELEASE /etc/lsb-release | awk -F '=' '{print $2}')
+ros_distro=foxy
+
+# install ROS2 dependencies
+sudo apt install -y ros-$ros_distro-rqt-reconfigure
 
 
 
-if [ "$ubuntu_distro" = "18.04" ]; then
-    sudo pip install ruamel.yaml
-else
-    sudo pip3 install ruamel.yaml
-fi
+# install python3 dependencies
+sudo pip3 install ruamel.yaml
+
