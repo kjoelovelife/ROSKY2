@@ -15,6 +15,7 @@
 
   <!-- launch file in this package  -->
   <!--<exec_depend>package_name</exec_depend>-->
+  <exec_depend>ominibot_car</exec_depend>
   
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

@@ -3,14 +3,13 @@
 <package format="3">
   <name>ominibot_car</name>
   <version>0.0.1</version>
-  <hardware_version>1.2</hardware_version>
-  <firmware_version>0.08</firmware_version>
-  <description>ominibot car driver with ROS2</description>
+  <description>ominibot car driver with ROS2, hardware: 1.2, firmware: 0.08.</description>
   <maintainer email="weichih.lin@protonmail.com">Joe Lin</maintainer>
   <license>Apache License 2.0</license>
 
   <depend>rclpy</depend>
   <depend>rclcpp</depend>
+
   <depend>example_interfaces</depend>
 
   <test_depend>ament_copyright</test_depend>

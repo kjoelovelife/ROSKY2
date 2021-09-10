@@ -13,13 +13,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='ros',
-    maintainer_email='ros@todo.todo',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    maintainer='Wei-chih',
+    maintainer_email='weichih.lin@prontonmail.com',
+    description='Connect ominibot carV1.2(https://www.icshop.com.tw/)',
+    license='Apache 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            f"ominibot_car_driver = {package_name}.ominibot_car_driver:main"
         ],
     },
 )

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#Copyright (c) 2021 Wei-Chih Lin
+#Copyright (c) 2021 Wei-Chih Lin(weichih.lin@protonmail.com)
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -23,7 +23,12 @@ ros_distro=foxy
 sudo apt install -y ros-$ros_distro-rqt-reconfigure
 
 
+# install python3 dependencies through apt
+sudo apt install -y python3-serial 
+
 
 # install python3 dependencies
-sudo pip3 install ruamel.yaml
+sudo -H pip3 install ruamel.yaml \
+                     numpy \
+                     
 

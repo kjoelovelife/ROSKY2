@@ -1,6 +1,6 @@
 #!/bin/usr/python3
 #
-#Copyright (c) 2021 Wei-Chih Lin
+#Copyright (c) 2021 Wei-Chih Lin(weichih.lin@protonmail.com)
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ from ruamel.yaml import YAML
 import argparse, getpass
 
 class CONFIG_YAML(object):
-    """
+    '''
     Default configuration:
       - project: ROSKY
       - ros_version: 2 
-    """
+    '''
     def __init__(self, ros_version=1):
     
         # get project
@@ -90,6 +90,9 @@ if __name__ == '__main__':
             default="source ~/ROSKY2/setup/shell_scripts/environment.sh")
             
     args = parser.parse_args()
+    
+    # set config.ros_distro
+    config.ros_distro = config.get_ros_distro(ros_version=args.ros_version)
 
     # read content
     content = config.read(target_file)
