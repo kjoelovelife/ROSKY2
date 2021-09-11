@@ -2,3 +2,5 @@ ominibot_car_driver:
   ros__parameters:
     port: "/dev/ominibot_car"
     baud: 115200
+    magnification_status: True
+    magnification_value: 70

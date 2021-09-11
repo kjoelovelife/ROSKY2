@@ -38,15 +38,16 @@ class OminibotCar(object):
         self.firmware = 0.08
 
         ## setup connected parameter
-        self.param = {"port": port,
-                      "baud": baud,
-                      "timeout": timeout,
-                      "send_interval": 0.1,
-                      "imu_freq": 100,
-                      "encoder_freq": 25,
-                      "battery_freq": 1,
-                      "interrupt_time": 1.5,
-                      "motor_correct": (0, 0, 0, 0),
+        self.param = {
+            "port": port,
+            "baud": baud,
+            "timeout": timeout,
+            "send_interval": 0.1,
+            "imu_freq": 100,
+            "encoder_freq": 25,
+            "battery_freq": 1,
+            "interrupt_time": 1.5,
+            "motor_correct": (0, 0, 0, 0),
         }
 
         self._serialOK = False
@@ -81,39 +82,41 @@ class OminibotCar(object):
         self.last_battery_seq = 0
 
         ###### read value ######
-        self.system_value = {"speed_limit"    : [0, 0, 0, 0],
-                             "location_limit" : [0, 0, 0, 0],
-                             "location_kp"    : [0, 0, 0, 0],
-                             "location_ki"    : [0, 0, 0, 0],
-                             "location_kd"    : [0, 0, 0, 0],
-                             "speed_kp"       : [0, 0, 0, 0],
-                             "speed_ki"       : [0, 0, 0, 0],
-                             "gyro_compensate": [0, 0, 0, 0],
-                             "system_mode"    : [0, 0, 0, 0],
-                             "gyro_correct"   : [0, 0, 0, 0],
-                             "motor_voltage"  : [0, 500],
-                             "battery_voltage": [32767, 32767], 
-                             "gyro_turn_angle": [0, 0, 0, 0],
+        self.system_value = {
+            "speed_limit"    : [0, 0, 0, 0],
+            "location_limit" : [0, 0, 0, 0],
+            "location_kp"    : [0, 0, 0, 0],
+            "location_ki"    : [0, 0, 0, 0],
+            "location_kd"    : [0, 0, 0, 0],
+            "speed_kp"       : [0, 0, 0, 0],
+            "speed_ki"       : [0, 0, 0, 0],
+            "gyro_compensate": [0, 0, 0, 0],
+            "system_mode"    : [0, 0, 0, 0],
+            "gyro_correct"   : [0, 0, 0, 0],
+            "motor_voltage"  : [0, 500],
+            "battery_voltage": [32767, 32767], 
+            "gyro_turn_angle": [0, 0, 0, 0],
         }
 
-        self.respond = {"head": 0x23,
-                        "auto_head": 0xFF,
-                        "speed_limit": 0x01,
-                        "location_limit": 0x02,
-                        "location_kp": 0x03,
-                        "location_ki": 0x04,
-                        "location_kd": 0x05,
-                        "speed_kp": 0x06,
-                        "speed_ki": 0x07,
-                        "gyro_compensate": 0x08,
-                        "system_mode": 0x09,
-                        "gyro_correct": 0x0A,
-                        "motor_voltage": 0x0B,
-                        "battery_voltage": 0x0C,
-                        "gyro_turn_angle": 0x20,
-                        "auto_gyro": 0xFA,
-                        "auto_encoder": 0xFB,
-                        "auto_battery": 0xFC,
+        self.respond = {
+            "head": 0x23,
+            "auto_head": 0xFF,
+            "speed_limit": 0x01,
+            "location_limit": 0x02,
+            "location_kp": 0x03,
+            "location_ki": 0x04,
+            "location_kd": 0x05,
+            "speed_kp": 0x06,
+            "speed_ki": 0x07,
+            "gyro_compensate": 0x08,
+            "system_mode": 0x09,
+            "gyro_correct": 0x0A,
+            "motor_voltage": 0x0B,
+            "battery_voltage": 0x0C,
+            "gyro_turn_angle": 0x20,
+            "auto_gyro": 0xFA,
+            "auto_encoder": 0xFB,
+            "auto_battery": 0xFC,
         }
 
     def connect(self):
@@ -380,7 +383,7 @@ class OminibotCar(object):
 
     def information(self):
         '''Ominibot car information
-        Return: PCB version, firmware version and how to configure motor for each control module
+        Return: PCB, firmware version and how to configure motor for each control module
         '''
         msg = f'''
             Ominibot car PCB Version: {self.hardware}
@@ -420,13 +423,15 @@ class OminibotCar(object):
           | motor2 | motor3 |\n
                  motor1
         '''
-        function = {"Vx": lambda V: 0 if V >= 0 else math.pow(2, 2),
-                    "Vy": lambda V: 0 if V >= 0 else math.pow(2, 1),
-                    "Vz": lambda V: 0 if V < 0 else math.pow(2, 0),
+        function = {
+            "Vx": lambda V: 0 if V >= 0 else math.pow(2, 2),
+            "Vy": lambda V: 0 if V >= 0 else math.pow(2, 1),
+            "Vz": lambda V: 0 if V < 0 else math.pow(2, 0),
         } 
-        direction = [function["Vx"](Vx),
-                     function["Vy"](Vy),
-                     function["Vz"](Vz),
+        direction = [
+            function["Vx"](Vx),
+            function["Vy"](Vy),
+            function["Vz"](Vz),
         ]       
         direction = int(reduce(lambda add_x, add_y: add_x + add_y, direction)) 
         Vx = int(round(self.clamp( abs(Vx), 0, 65536 )))
@@ -473,15 +478,17 @@ class OminibotCar(object):
           debug: False or True. If true, show what binary data send to ominibot car
 
         '''
-        function = {"v1": lambda V: math.pow(2, 2) if V < 0 else 0,
-                    "v2": lambda V: math.pow(2, 1) if V < 0 else 0,
-                    "v3": lambda V: math.pow(2, 0) if V < 0 else 0,
-                    "v4": lambda V: math.pow(2, 3) if V < 0 else 0,
+        function = {
+            "v1": lambda V: math.pow(2, 2) if V < 0 else 0,
+            "v2": lambda V: math.pow(2, 1) if V < 0 else 0,
+            "v3": lambda V: math.pow(2, 0) if V < 0 else 0,
+            "v4": lambda V: math.pow(2, 3) if V < 0 else 0,
         }
-        direction = [function["v1"](v1),
-                     function["v2"](v2),
-                     function["v3"](v3),
-                     function["v4"](v4),
+        direction = [
+            function["v1"](v1),
+            function["v2"](v2),
+            function["v3"](v3),
+            function["v4"](v4),
         ]
         direction = int(reduce(lambda add_x, add_y: add_x + add_y, direction))
         if mode == 0x02:
@@ -493,10 +500,11 @@ class OminibotCar(object):
         else:
             print('Mode error! Please chechout your setting(just 0x02 or 0x03).')
 
-        speed = {"v1":int(round(self.clamp(abs(v1) + self.param["motor_correct"][0], speed_min, speed_max))),
-                 "v2":int(round(self.clamp(abs(v2) + self.param["motor_correct"][1], speed_min, speed_max))),
-                 "v3":int(round(self.clamp(abs(v3) + self.param["motor_correct"][2], speed_min, speed_max))),
-                 "v4":int(round(self.clamp(abs(v4) + self.param["motor_correct"][3], speed_min, speed_max))),
+        speed = {
+            "v1":int(round(self.clamp(abs(v1) + self.param["motor_correct"][0], speed_min, speed_max))),
+            "v2":int(round(self.clamp(abs(v2) + self.param["motor_correct"][1], speed_min, speed_max))),
+            "v3":int(round(self.clamp(abs(v3) + self.param["motor_correct"][2], speed_min, speed_max))),
+            "v4":int(round(self.clamp(abs(v4) + self.param["motor_correct"][3], speed_min, speed_max))),
         }
         ## setting up wheel velocity
         cmd = bytearray(b'\xFF\xFE')
@@ -515,11 +523,11 @@ class OminibotCar(object):
     def diff_drive(self, left=0.0, right=0.0, alpha=-1, mode=0x02, magnification=1, information=False, debug=False):
         '''Use differential driver to control bot
         Args:
-          left:
-          right:
-          alpha:
-          mode:
-          magnicication:
+          left: speed of all left wheels
+          right: speed of all right wheels
+          alpha: 1- motor normal operation; -1- motor reverse operation(default) 
+          mode: 0x02- with encoder(default); 0x03- without encoder
+          magnicication: enlarge left and right weels speed
           information:
           debug: False or True. If true, show what binary data send to ominibot car
         '''
@@ -538,7 +546,7 @@ class OminibotCar(object):
         }
         direction = [
             function["right"](right),
-            function["left"](left)
+            function["left"](left),
         ]
         direction = int(reduce(lambda add_x, add_y: add_x + add_y, direction))
         ## setting up wheel velocity
@@ -573,14 +581,23 @@ class OminibotCar(object):
     def set_mode_A(self, param_name, number=50, information=False, debug=False):
         '''Configure gyro 
         Args:
-          param_name: which one will re-configure
+          param_name: chose one and will re-configure
+            load_setup:
+            initialize:
+            write_setting:
+            guro_compensate_off:
+            gyro_compensate_on:
+            gyro_compensate_restart:
+            
+          number: how many times send data in one second
         '''
-        item = {"load_setup": 0x01,
-                "initialize": 0x02,
-                "write_setting": 0x03,
-                "gyro_compensate_off": 0x04,
-                "gyro_compensate_on": 0x05,
-                "gyro_compensate_restart": 0x06,
+        item = {
+            "load_setup": 0x01,
+            "initialize": 0x02,
+            "write_setting": 0x03,
+            "gyro_compensate_off": 0x04,
+            "gyro_compensate_on": 0x05,
+            "gyro_compensate_restart": 0x06,
         }
         if param_name in item:
             Tx8 = item.get(param_name)
