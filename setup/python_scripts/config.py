@@ -62,6 +62,11 @@ class CONFIG_YAML(object):
 		
     def get_path(self, project="", folder="setup", _file="environment.sh"):
         """
+        Return: (file path) -> String
+        Args:
+          progect: String, Top folder name
+          folder: String, middle folder path
+          _file: String, File Name
         get_path(project=String, folder=String, _file=String)
         """
         project = self.project if project == "" else project
@@ -72,15 +77,13 @@ if __name__ == '__main__':
     # call class
     config = CONFIG_YAML()
 
-    # configure argument
-    target_file = config.get_path(project="ros_menu", folder="", _file="config.yaml")
     #test_file = config.get_path(_file="test.yaml")
     parser = argparse.ArgumentParser()
     
     ## ros version
     parser.add_argument("--ros-version", 
             type=int, 
-            help=f"Please set ros version that you want to add command in file \"{target_file}\"", 
+            help=f"Please set ros version that you want to add command.", 
             default=2)
             
     ## cmd    
@@ -94,18 +97,27 @@ if __name__ == '__main__':
     # set config.ros_distro
     config.ros_distro = config.get_ros_distro(ros_version=args.ros_version)
 
+    # configure argument
+    file_path = {
+        "ros_menu": config.get_path(project="ros_menu", folder="", _file="config.yaml"),
+        "ominibot_config": config.get_path(folder="ros2_ws/src/rosky2_bringup/config", _file="ominibot_car_driver.yaml"),          
+    }
+
     # read content
-    content = config.read(target_file)
+    content = {
+        "ros_menu": config.read(file_path["ros_menu"]),
+        "ominibot_congih": config.read(file_path["ominibot_config"]),
+    }
     
     # configure cmd
     cmd = args.cmd
-    if content["Menu"][config.ros_distro]["cmds"] is None:
-        content["Menu"][config.ros_distro]["cmds"] = [cmd]
+    if content["ros_menu"]["Menu"][config.ros_distro]["cmds"] is None:
+        content["ros_menu"]["Menu"][config.ros_distro]["cmds"] = [cmd]
     else:
-        content["Menu"][config.ros_distro]["cmds"].insert(0, cmd)
+        content["ros_menu"]["Menu"][config.ros_distro]["cmds"].insert(0, cmd)
     
     # write content
-    config.write(content, target_file)
+    config.write(content["ros_menu"], file_path["ros_menu"])
     
 
      	

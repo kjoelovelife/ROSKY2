@@ -34,15 +34,16 @@ class OminibotCarDriverNode(Node):
         self.declare_parameter("port", "/dev/ominibot_car")
         self.declare_parameter("baud", 115200)
         self.declare_parameter("time_out", None)
-        self.declare_parameter("magnification_status", False)
-        self.declare_parameter("magnification_value", 100)
+        #self.declare_parameters(namespace="", parameters=[("status", False), ("value", 100)])
+        self.declare_parameter("magnification.status", False)
+        self.declare_parameter("magnification.value", 100)
 
         # get parameter
         self.port = self.get_parameter("port").value
         self.baud = self.get_parameter("baud").value
         self.time_out = self.get_parameter("time_out").value
-        self.magnification_status = self.get_parameter("magnification_status").value
-        self.magnification_value = self.get_parameter("magnification_value").value
+        self.magnification_status = self.get_parameter("magnification.status").value
+        self.magnification_value = self.get_parameter("magnification.value").value
 
         # initiallize driver
         self.driver = OminibotCar(self.port, self.baud, self.time_out)

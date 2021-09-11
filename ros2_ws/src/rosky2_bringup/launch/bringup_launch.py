@@ -26,6 +26,7 @@ def generate_launch_description():
 
     # configure arguments
     self_package = 'rosky2_bringup'
+    self_name_space = os.environ['VEHICLE_NAME']
 
     # configure function
     ld = LaunchDescription()
@@ -43,6 +44,7 @@ def generate_launch_description():
     # configure node
     ominibot_car_driver_node = Node(
         package="ominibot_car",
+        namespace=self_name_space,
         executable="ominibot_car_driver",
         parameters=[
             ominibot_car_driver_config,
@@ -50,6 +52,8 @@ def generate_launch_description():
         remappings=[
             ominibot_car_driver_to_cmd,
         ],
+        output="screen",
+        
 
     )
 

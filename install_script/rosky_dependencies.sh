@@ -31,4 +31,5 @@ sudo apt install -y python3-serial
 sudo -H pip3 install ruamel.yaml \
                      numpy \
                      
-
+# config project ROSKY2 
+source ${HOME}/ROSKY2/setup/python_scripts/config.py
