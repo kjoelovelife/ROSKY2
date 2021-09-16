@@ -36,7 +36,8 @@ class CONFIG_YAML(object):
     
         #setup argument
         self.shell = os.popen("echo $SHELL | awk -F '/' '{print $NF}'").readlines()[0].rstrip("\n")
-        self.home_path = f"/home/" + os.popen("echo $USER | awk -F '/' '{print $NF}'").readlines()[0].rstrip("\n")
+        self.home_path = os.popen("echo $HOME").readlines()[0].rstrip("\n")
+        print(self.home_path )
         self.ubuntu = os.popen("grep RELEASE /etc/lsb-release | awk -F '=' '{print $2}'").readlines()[0].rstrip("\n")
         
         ## use inter function
