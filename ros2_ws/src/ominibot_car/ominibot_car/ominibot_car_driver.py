@@ -16,10 +16,28 @@
 #
 
 # Import Libraries
-import rclpy, threading
+import rclpy, threading, math
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
 from .ominibot_car_com import OminibotCar
+
+# import msgs
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from std_msgs.msg import Float32MultiArray 
+
+
+# tf library
+import tf_transformations
+
+# tf2 library
+from tf2_ros import TransformBroadcaster
+
+
+
+# defined constant 
+PI = math.pi
+MOTOR_ENCODER_COUNT = 1170 # per rotation
+MOTOR_RPM = 139            # 6V / 20000, 1:120, we provide 5V
 
 
 class OminibotCarDriverNode(Node):
@@ -31,19 +49,44 @@ class OminibotCarDriverNode(Node):
         self.node_name = self.get_name()
 
         # declare parameter
+        ## ominibot car
         self.declare_parameter("port", "/dev/ominibot_car")
         self.declare_parameter("baud", 115200)
         self.declare_parameter("time_out", None)
-        #self.declare_parameters(namespace="", parameters=[("status", False), ("value", 100)])
         self.declare_parameter("magnification.status", False)
-        self.declare_parameter("magnification.value", 100)
+        self.declare_parameter("magnification.value", 100) # self.declare_parameters(namespace="", parameters=[("status", False), ("value", 100)])
+
+        ## mecanum
+        self.declare_parameter("odom_frequency", 20)
+        self.declare_parameter("wheel_diameter", 65)
+
+        ##
+        self.last_time = rclpy.time()
+        self.current_time = rclpy.time()
+
+
 
         # get parameter
+        ## from ros 2 parameter server
         self.port = self.get_parameter("port").value
         self.baud = self.get_parameter("baud").value
         self.time_out = self.get_parameter("time_out").value
         self.magnification_status = self.get_parameter("magnification.status").value
         self.magnification_value = self.get_parameter("magnification.value").value
+        self.odom_frequency = self.get_parameter("odom_frequency").value
+        self.wheel_diameter = self. get_parameter("wheel_diameter").value
+
+        ## for mecanum
+        self.scale = {
+            "x": () / (),
+            "y":,
+            "theta",
+        } 
+        self.pose = {
+            "x": 0.0,
+            "y": 0.0,
+            "theta": 0.0,
+        }
 
         # initiallize driver
         self.driver = OminibotCar(self.port, self.baud, self.time_out)
@@ -52,6 +95,9 @@ class OminibotCarDriverNode(Node):
         # Create subscriber
         self.twist_subscriber = self.create_subscription(
             Twist, '~/cmd_vel', self.callback_cmd_vel, 10)
+
+        # Create publisher
+        self.odom_publisher = self.create_publisher(Float32MultiArray, "~/odom", 10)
 
         # log
         self.get_logger().info(f'Start!')
@@ -76,6 +122,17 @@ class OminibotCarDriverNode(Node):
         self.angular_z = msg.angular.z * self.magnification_value if self.magnification_status == True else msg.angular.z
         self.get_logger().info(f"I get velocity - linear x: {self.linear_x}, linear y: {self.linear_y}, angular z: {self.angular_z}")
         self.driver.mecanum(Vx=self.linear_x, Vy=self.linear_y,  Vz=self.angular_z)
+
+
+    def encoder_callback(self):
+        '''
+
+        '''
+
+
+
+
+
 
     def shutdown(self):
         '''close ominibot car port and shutdown this node 

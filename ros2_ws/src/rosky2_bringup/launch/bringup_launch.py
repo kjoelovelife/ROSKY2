@@ -39,7 +39,7 @@ def generate_launch_description():
     )
 
     # configure remapping topic 
-    ominibot_car_driver_to_cmd = ('/ominibot_car_driver/cmd_vel', '/cmd_vel')
+    ominibot_car_driver_to_cmd = (f'/{self_name_space}/ominibot_car_driver/cmd_vel', '/cmd_vel')
 
     # configure node
     ominibot_car_driver_node = Node(
@@ -52,9 +52,7 @@ def generate_launch_description():
         remappings=[
             ominibot_car_driver_to_cmd,
         ],
-        output="screen",
-        
-
+        output="screen",    
     )
 
 
