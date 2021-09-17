@@ -61,8 +61,8 @@ class OminibotCarDriverNode(Node):
         self.declare_parameter("wheel_diameter", 65)
 
         ##
-        self.last_time = rclpy.time()
-        self.current_time = rclpy.time()
+        #self.last_time = rclpy.time()
+        #self.current_time = rclpy.time()
 
 
 
@@ -77,6 +77,7 @@ class OminibotCarDriverNode(Node):
         self.wheel_diameter = self. get_parameter("wheel_diameter").value
 
         ## for mecanum
+        '''
         self.scale = {
             "x": () / (),
             "y":,
@@ -86,7 +87,7 @@ class OminibotCarDriverNode(Node):
             "x": 0.0,
             "y": 0.0,
             "theta": 0.0,
-        }
+        }'''
 
         # initiallize driver
         self.driver = OminibotCar(self.port, self.baud, self.time_out)
@@ -97,7 +98,7 @@ class OminibotCarDriverNode(Node):
             Twist, '~/cmd_vel', self.callback_cmd_vel, 10)
 
         # Create publisher
-        self.odom_publisher = self.create_publisher(Float32MultiArray, "~/odom", 10)
+        #self.odom_publisher = self.create_publisher(Float32MultiArray, "~/odom", 10)
 
         # log
         self.get_logger().info(f'Start!')
@@ -128,6 +129,7 @@ class OminibotCarDriverNode(Node):
         '''
 
         '''
+        pass
 
 
 
