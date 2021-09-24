@@ -40,6 +40,7 @@ def generate_launch_description():
 
     # configure arguments
     ## environment and package name
+    self_name_space = os.environ["VEHICLE_NAME"]
     package_node = {
         "self": ["rosky2_bringup"],
         "ominibot_car": ["ominibot_car", "ominibot_car_driver"],
@@ -47,34 +48,35 @@ def generate_launch_description():
         "lidar": ["ydlidar_ros2_driver", "ydlidar_ros2_driver_node"],
     }
 
-    self_name_space = os.environ['VEHICLE_NAME']
-
     ## launch argument
-
-    ### local
-    rf2o_if_or_not = LaunchConfiguration('rf2o', default='false')
-    lidar_params_file = LaunchConfiguration(
-        'lidar_params_file',
-        default = str(Path(
-            get_package_share_directory(package_node["self"][0]),
-            'config',
-            'ydlidar.yaml'
-        )),
+    ### Declare
+    rf2o_if_or_not = DeclareLaunchArgument(
+        "rf2o",
+        default_value="false",
+        description="Use rf2o_laser_odometry.launch.py or not, defaulr is \"false\""
     )
 
-    odom_topic = LaunchConfiguration('odom_topic', default='/odom_rf2o')
+    lidar_params_file = DeclareLaunchArgument(
+        "lidar_params_file",
+        default_value = str(Path(
+            get_package_share_directory(package_node["self"][0]),
+            "config",
+            "ydlidar.yaml"
+        )),
+        description="Use ydlidar.yaml to get ydlidar parameters"
+    )
 
-
+    odom_topic = LaunchConfiguration("odom_topic", default="/odom_rf2o")
 
     # get parameter file path
     ominibot_car_config = Path(
         get_package_share_directory(package_node["self"][0]),
-        'config',
-        'ominibotcar.yaml'
+        "config",
+        "ominibotcar.yaml"
     )
 
     # remapping topic 
-    ominibot_car_driver_to_cmd = (f'/{self_name_space}/ominibot_car_driver/cmd_vel', '/cmd_vel')
+    ominibot_car_driver_to_cmd = (f"/{self_name_space}/ominibot_car_driver/cmd_vel", "/cmd_vel")
 
     # configure node
     ominibot_car_driver_node = Node(
@@ -91,19 +93,34 @@ def generate_launch_description():
     )
 
     # configure launch file
+    ## ydlidar will configure tf2 frame: odom -> base_footprint
     rf2o_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([get_package_share_directory(package_node["rf2o"][0]), '/launch/rf2o_laser_odometry.launch.py']),
-        condition=IfCondition(rf2o_if_or_not),
-        launch_arguments={'odom_topic': odom_topic}.items()
+        PythonLaunchDescriptionSource([get_package_share_directory(package_node["rf2o"][0]), "/launch/rf2o_laser_odometry.launch.py"]),
+        condition=IfCondition(LaunchConfiguration("rf2o")),
+        launch_arguments={"odom_topic": odom_topic}.items()
     )
 
+    ## ydlidar will configure tf2 frame: baselink -> laser_frame
     ydlidar_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([get_package_share_directory(package_node["lidar"][0]), '/launch/ydlidar_launch.py']),
-        launch_arguments={'params_file': lidar_params_file}.items(),
+        PythonLaunchDescriptionSource([get_package_share_directory(package_node["lidar"][0]), "/launch/ydlidar_launch.py"]),
+        launch_arguments={"params_file": LaunchConfiguration("lidar_params_file")}.items(),
     )
 
-    # add node in launch function
+    # configure tf2 frame
+    ## rosky2_nav need frame: base_footprint, we configure base_footprint -> base_link
+    tf2_node = Node(package='tf2_ros',
+                executable='static_transform_publisher',
+                name='static_tf_base_footprint_to_base_link',
+                arguments=['0', '0', '0.09', '0', '0', '0','base_footprint','base_link'],
+                )
+
+
+    # add node and launch in launch function
+    ld.add_action(rf2o_if_or_not)
+    ld.add_action(lidar_params_file)
     ld.add_action(ominibot_car_driver_node)
     ld.add_action(rf2o_launch)
     ld.add_action(ydlidar_launch)
+    ld.add_action(tf2_node)
+
     return ld

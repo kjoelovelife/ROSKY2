@@ -464,7 +464,7 @@ class OminibotCar(object):
           | motor1 | motor2 |\n
           | motor4 | motor3 |
         '''
-        self.omnibot(Vx=Vx, Vy=Vy, Vz=Vz, platform="mecanum")
+        self.omnibot(Vx=Vx, Vy=Vy, Vz=-Vz, platform="mecanum")
 
     def individual_wheel(self, v1=0.0, v2=0.0, v3=0.0, v4=0.0, mode=0x03,  information=False, debug=False):
         '''control each motor
