@@ -20,14 +20,16 @@ find_package(ament_cmake REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(example_interfaces REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 # add msg and srv
-#rosidl_generate_interfaces(${PROJECT_NAME}
-#  "msg/.msg"
-#  "srv/.srv"
-#  
-#)
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/FindWall.srv"
+  "action/OdomRecord.action"
+  DEPENDENCIES geometry_msgs   
+)
 
 
 if(BUILD_TESTING)

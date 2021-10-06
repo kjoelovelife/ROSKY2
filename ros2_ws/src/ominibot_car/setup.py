@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            f"ominibot_car_driver = {package_name}.ominibot_car_driver:main"
+            f"ominibot_car_driver = {package_name}.ominibot_car_driver:main",
         ],
     },
 )
