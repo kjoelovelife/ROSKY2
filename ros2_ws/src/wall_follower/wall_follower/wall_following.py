@@ -75,18 +75,21 @@ class WallFollowing(Node):
 
         # create a Twist message
         self.cmd = Twist()
-        self.cmd_multiple = 30 / 0.3
+        self.linear__speed_limit = 0.2
+        self.angular_speed_limit = self.linear__speed_limit / 3
+        self.cmd_multiple = 50 / self.angular_speed_limit
+        
 
         # PID controller
         self.cu_error = 0
         self.last_error = 0
         self.standard = 0.25
-        self.angular_speed_limit = 0.3
         self.thres_hold_min = 0.05
         self.thres_hold_max = self.thres_hold_min + 0.02
         self.kp = -3
         self.kd = -5
         self.timer = self.create_timer(self.timer_period, self.motion)
+        
 
     def call_find_wall_server(self):
         client = self.create_client(FindWall, "/find_wall")
@@ -152,12 +155,12 @@ class WallFollowing(Node):
         self.laser_left = msg.ranges[left]
         # print the data
         if self.follow_wall == True:
-            #self.get_logger().info(f"ranges: {len(msg.ranges)}, front: {self.laser_front}, left: {self.laser_left}")
+            self.get_logger().info(f"ranges: {len(msg.ranges)}, front: {self.laser_front}, right: {self.laser_right}")
             self.motion()
 
     def motion(self):
-        linear_x  = 0.05
-        if self.laser_front > 0.3:
+        linear_x  = 0.2
+        if self.laser_front > 0.2:
             self.cu_error = self.laser_right - self.standard
             if abs(self.cu_error) > self.thres_hold_min and abs(self.cu_error) < self.thres_hold_max:
                 angular_z = (self.cu_error * self.kp) + ((self.cu_error - self.last_error) / (self.timer_period) * self.kd)
@@ -169,8 +172,8 @@ class WallFollowing(Node):
         else:
             linear_x = 0.0
             angular_z = self.angular_speed_limit 
-        self.cmd.linear.x = linear_x #* self.cmd_multiple
-        self.cmd.angular.z = angular_z #* self.cmd_multiple
+        self.cmd.linear.x = linear_x * self.cmd_multiple
+        self.cmd.angular.z = angular_z * self.cmd_multiple
         self.last_error = self.cu_error
         self.publisher_.publish(self.cmd)
 

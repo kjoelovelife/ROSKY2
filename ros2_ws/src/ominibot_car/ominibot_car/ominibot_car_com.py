@@ -426,7 +426,7 @@ class OminibotCar(object):
         function = {
             "Vx": lambda V: 0 if V >= 0 else math.pow(2, 2),
             "Vy": lambda V: 0 if V >= 0 else math.pow(2, 1),
-            "Vz": lambda V: 0 if V < 0 else math.pow(2, 0),
+            "Vz": lambda V: 0 if V > 0 else math.pow(2, 0),
         } 
         direction = [
             function["Vx"](Vx),
@@ -466,7 +466,7 @@ class OminibotCar(object):
         '''
         self.omnibot(Vx=Vx, Vy=Vy, Vz=Vz, platform="mecanum")
 
-    def individual_wheel(self, v1=0.0, v2=0.0, v3=0.0, v4=0.0, mode=0x03,  information=False, debug=False):
+    def individual_wheel(self, V1=0.0, V2=0.0, V3=0.0, V4=0.0, mode=0x02,  information=False, debug=False):
         '''control each motor
         Args:
           v1: 0 - 10,000, minimum value to drive motor1
@@ -476,43 +476,42 @@ class OminibotCar(object):
           mode: use encoder(0x02) or not(0x03)
           information:
           debug: False or True. If true, show what binary data send to ominibot car
+        Axis and Motor:
+          x\n
+          ^\n
+          | motor2 | motor1 |\n
+          | motor4 | motor3 |
 
         '''
         function = {
-            "v1": lambda V: math.pow(2, 2) if V < 0 else 0,
-            "v2": lambda V: math.pow(2, 1) if V < 0 else 0,
-            "v3": lambda V: math.pow(2, 0) if V < 0 else 0,
-            "v4": lambda V: math.pow(2, 3) if V < 0 else 0,
+            "V1": lambda V: math.pow(2, 2) if V < 0 else 0,
+            "V2": lambda V: math.pow(2, 1) if V > 0 else 0,
+            "V3": lambda V: math.pow(2, 0) if V < 0 else 0,
+            "V4": lambda V: math.pow(2, 3) if V > 0 else 0,
         }
         direction = [
-            function["v1"](v1),
-            function["v2"](v2),
-            function["v3"](v3),
-            function["v4"](v4),
+            function["V1"](V1),
+            function["V2"](V2),
+            function["V3"](V3),
+            function["V4"](V4),
         ]
         direction = int(reduce(lambda add_x, add_y: add_x + add_y, direction))
-        if mode == 0x02:
-            speed_max = 100
-            speed_min = 0
-        elif mode == 0x03:
-            speed_max = 10000
-            speed_min = 0
-        else:
-            print('Mode error! Please chechout your setting(just 0x02 or 0x03).')
+        speed_max = 65536
+        speed_min = 0
 
         speed = {
-            "v1":int(round(self.clamp(abs(v1) + self.param["motor_correct"][0], speed_min, speed_max))),
-            "v2":int(round(self.clamp(abs(v2) + self.param["motor_correct"][1], speed_min, speed_max))),
-            "v3":int(round(self.clamp(abs(v3) + self.param["motor_correct"][2], speed_min, speed_max))),
-            "v4":int(round(self.clamp(abs(v4) + self.param["motor_correct"][3], speed_min, speed_max))),
+            "V1":int(round(self.clamp(abs(V1), speed_min, speed_max))),
+            "V2":int(round(self.clamp(abs(V2), speed_min, speed_max))),
+            "V3":int(round(self.clamp(abs(V3), speed_min, speed_max))),
+            "V4":int(round(self.clamp(abs(V4), speed_min, speed_max))),
         }
         ## setting up wheel velocity
         cmd = bytearray(b'\xFF\xFE')
         cmd.append(mode)
-        cmd += struct.pack('>h', speed["v1"])  # 2-bytes
-        cmd += struct.pack('>h', speed["v2"])   # 2-bytes
-        cmd += struct.pack('>h', speed["v3"])  # 2-bytes
-        cmd += struct.pack('>h', speed["v4"])   # 2-bytes     
+        cmd += struct.pack('>h', speed["V1"])  # 2-bytes
+        cmd += struct.pack('>h', speed["V2"])   # 2-bytes
+        cmd += struct.pack('>h', speed["V3"])  # 2-bytes
+        cmd += struct.pack('>h', speed["V4"])   # 2-bytes     
         cmd += struct.pack('>b', direction) # 1-bytes 
         if debug == True :
             print(f'send signal about individual_wheel: {binascii.hexlify(cmd)}.')
@@ -978,7 +977,7 @@ if __name__ == '__main__':
         ominibot.stop_thread()
         sys.exit(0)
 
-    ominibot.set_system_mode(platform="mecanum")
+    ominibot.set_system_mode(platform="individual_wheel")
     start = time.time()
     end   = time.time()
     interval = end - start
@@ -987,7 +986,7 @@ if __name__ == '__main__':
         # mode=0x02: with encode, mode=0x03: without encode
         # ominibot.mecanum(-30,0,0) 
         #ominibot.individual_wheel(30,0,0)
-        ominibot.mecanum(Vx=-100, Vy=0, Vz=0)
+        ominibot.individual_wheel(V1=-100, debug=True)
         print(ominibot.get_encoder_data())
         end = time.time()
         interval = end - start

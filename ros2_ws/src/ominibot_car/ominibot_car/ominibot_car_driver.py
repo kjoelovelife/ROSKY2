@@ -32,14 +32,6 @@ import tf_transformations
 # tf2 library
 from tf2_ros import TransformBroadcaster
 
-
-
-# defined constant 
-PI = math.pi
-MOTOR_ENCODER_COUNT = 1170 # per rotation
-MOTOR_RPM = 139            # 6V / 20000, 1:120, we provide 5V
-
-
 class OminibotCarDriverNode(Node):
     '''Get velocity and plan mobile path
     '''
@@ -50,47 +42,24 @@ class OminibotCarDriverNode(Node):
 
         # declare parameter
         ## ominibot car
-        self.declare_parameter("port", "/dev/ominibot_car")
-        self.declare_parameter("baud", 115200)
-        self.declare_parameter("time_out", None)
-        self.declare_parameter("magnification.status", False)
-        self.declare_parameter("magnification.value", 100) # self.declare_parameters(namespace="", parameters=[("status", False), ("value", 100)])
-
-        ## mecanum
-        self.declare_parameter("odom_frequency", 20)
-        self.declare_parameter("wheel_diameter", 65)
-
-        ##
-        #self.last_time = rclpy.time()
-        #self.current_time = rclpy.time()
-
-
-
-        # get parameter
-        ## from ros 2 parameter server
-        self.port = self.get_parameter("port").value
-        self.baud = self.get_parameter("baud").value
-        self.time_out = self.get_parameter("time_out").value
-        self.magnification_status = self.get_parameter("magnification.status").value
-        self.magnification_value = self.get_parameter("magnification.value").value
-        self.odom_frequency = self.get_parameter("odom_frequency").value
-        self.wheel_diameter = self. get_parameter("wheel_diameter").value
-
-        ## for mecanum
-        '''
-        self.scale = {
-            "x": () / (),
-            "y":,
-            "theta",
-        } 
-        self.pose = {
-            "x": 0.0,
-            "y": 0.0,
-            "theta": 0.0,
-        }'''
+        self.parameter = {
+            "port": "/dev/ominibot_car",
+            "baud": 115200,
+            "motor_encoder_count": 1170.0,
+            "motor_output_rpm": 185.0,
+            "motor_ratio": 90.0,
+            "motor_axis_length": 125.0,
+            "motor_axis_width": 150.0,
+            "wheel_diameter": 75.0,
+            "wheel_axis_length": 15.0,
+            "wheel_width": 30.0,
+            "odom_frequency": 20,
+            "timeout": None,
+        }
+        self.get_ros2_parameter()
 
         # initiallize driver
-        self.driver = OminibotCar(self.port, self.baud, self.time_out)
+        self.driver = OminibotCar(self.parameter["port"], self.parameter["baud"], self.parameter["timeout"])
         self.initialize_driver()
 
         # Create subscriber
@@ -103,10 +72,93 @@ class OminibotCarDriverNode(Node):
         # log
         self.get_logger().info(f'Start!')
 
+    def get_ros2_parameter(self):
+        """from ros2 parameter server to get parameter, and produce mecanum factor
+        """
+        for key in self.parameter.keys():
+            self.declare_parameter(key, self.parameter[key])
+            
+        for key in self.parameter.keys():
+            self.parameter[key] = self.get_parameter(key).value
+            self.get_logger().info(f"Publish ros2 parameter, {key}: {self.parameter[key]}")
+        
+        ## use ros2 parameter to produce mecanum factor
+        self.mecanum_factor()
+              
+
+    def mecanum_factor(self):
+        """factor for mecanum Drive kinematic
+          Transform unit from meter to millimeter and add below parameter in self.parameter:
+            wheel_radius: radius of wheel -> float
+            wheel_perimeter: perimeter of wheel -> float
+            wheel_k: abs(x_distance) + abs(y_distance)-> float
+            x_distance: distance along to the x-axis from center of bot to motor axis -> float
+            y_distance: distance along to the y-axis from center of bot to motor axis -> float
+            left_front: coordinate(m) of the left-front wheel from center of bot -> tuple(float, float)
+            left_back: coordinate(m) of the left-front wheel from center of bot -> tuple(float, float)
+            right_front: coordinate(m) of the left-front wheel from center of bot -> tuple(float, float)
+            right_back: coordinate(m) of the left-front wheel from center of bot -> tuple(float, float)
+          Axis:
+                x\n
+                ^\n
+                |\n
+            y <--
+        """ 
+        for key in self.parameter.keys():
+            if key[:5] == "motor" or key[:5] == "wheel":
+                self.parameter[key] *= math.pow(10, -3)
+        self.parameter["wheel_radius"] = self.parameter["wheel_diameter"] / 2.0
+        self.parameter["wheel_perimeter"] = self.parameter["wheel_diameter"] * math.pi
+
+        # distance between center of bot and center of wheel
+        self.parameter["x_distance"] = self.parameter["motor_axis_length"] / 2.0
+        self.parameter["y_distance"] = (self.parameter["motor_axis_width"] / 2.0) + self.parameter["wheel_axis_length"] + (self.parameter["wheel_width"] / 2.0)
+        self.parameter["left_front"] = (self.parameter["x_distance"], self.parameter["y_distance"])
+        self.parameter["left_back"] = (-self.parameter["x_distance"], self.parameter["y_distance"])
+        self.parameter["right_front"] = (self.parameter["x_distance"], -self.parameter["y_distance"])
+        self.parameter["right_back"] = (-self.parameter["x_distance"], -self.parameter["y_distance"])
+        self.parameter["wheel_k"] = self.parameter["x_distance"] + self.parameter["y_distance"]
+
+    def wheel_speed(self, Vx, Vy, Vz, platform="mecanum"):
+        """Calculate speed for each wheel\n
+        Args:
+          Vx: linear speed for x-axis
+          Vy: linear speed for y-axis
+          Vz: angular speed for z-axis
+          platform: which kinematic to use, default is \"mecanum\"
+        Return:
+          (Vlf, Vlb, Vrf, Vrb):
+            Vlf: speed for left-front wheel
+            Vlb: speed for left-back wheel
+            Vrf: speed for right-front wheel
+            Vrb: speed for right-back wheel
+        """
+        if platform == "mecanum":
+            Vz = self.parameter["wheel_k"] * Vz
+
+            # Translate linear velocity for each wheel
+            Vlf = Vx - Vy - Vz
+            Vlb = Vx + Vy - Vz
+            Vrb = Vx - Vy + Vz
+            Vrf = Vx + Vy + Vz
+
+            # Translate velocity for each wheel(rad/s)
+            Vlf /= self.parameter["wheel_perimeter"]
+            Vlb /= self.parameter["wheel_perimeter"]
+            Vrb /= self.parameter["wheel_perimeter"]
+            Vrf /= self.parameter["wheel_perimeter"]
+
+            # Translate velocity for each motor(rpm)
+            Vlf *= self.parameter["motor_ratio"]
+            Vlb *= self.parameter["motor_ratio"]
+            Vrb *= self.parameter["motor_ratio"]
+            Vrf *= self.parameter["motor_ratio"]
+            return (Vlf, Vlb, Vrf, Vrb)
+
     def initialize_driver(self):
         '''Start communciate with ominibot car
         '''
-        self.driver.set_system_mode(platform="mecanum")
+        self.driver.set_system_mode(platform="individual_wheel")
         try:
             thread = threading.Thread(target=self.driver.serial_thread)
             thread.start()
@@ -114,15 +166,16 @@ class OminibotCarDriverNode(Node):
             print("error")
             self.shutdown()
 
-
     def callback_cmd_vel(self, msg):
-        '''Receive msg Twist and send velocity to ominibot_car_com  
+        '''Receive msg Twist and send velocity to ominibot_car_com
         '''
-        self.linear_x = msg.linear.x * self.magnification_value if self.magnification_status == True else msg.linear.x
-        self.linear_y = msg.linear.y * self.magnification_value if self.magnification_status == True else msg.linear.y
-        self.angular_z = msg.angular.z * self.magnification_value if self.magnification_status == True else msg.angular.z
+        self.linear_x = msg.linear.x 
+        self.linear_y = msg.linear.y 
+        self.angular_z = msg.angular.z
+
         self.get_logger().info(f"I get velocity - linear x: {self.linear_x}, linear y: {self.linear_y}, angular z: {self.angular_z}")
-        self.driver.mecanum(Vx=self.linear_x, Vy=self.linear_y,  Vz=self.angular_z)
+        wheel_speed = self.wheel_speed(self.linear_x, self.linear_y, self.angular_z)
+        self.driver.individual_wheel(V1=wheel_speed[3], V2=wheel_speed[0], V3=wheel_speed[2], V4=wheel_speed[1])
 
 
     def encoder_callback(self):
@@ -130,11 +183,6 @@ class OminibotCarDriverNode(Node):
 
         '''
         pass
-
-
-
-
-
 
     def shutdown(self):
         '''close ominibot car port and shutdown this node 
@@ -149,7 +197,10 @@ class OminibotCarDriverNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = OminibotCarDriverNode()
-    rclpy.spin(node)
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
     node.destroy_node()
     node.shutdown()
 
