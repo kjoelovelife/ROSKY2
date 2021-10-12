@@ -1,0 +1,12 @@
+/rosky/ominibot_car_driver:
+  ros__parameters:
+    port: "/dev/ominibot_car"
+    baud: 115200
+    motor_encoder_count: 1170.0
+    motor_output_rpm: 185.0
+    motor_ratio: 90.0
+    motor_axis_length: 125.0
+    motor_axis_width: 150.0
+    wheel_diameter: 75.0
+    wheel_axis_length: 15.0
+    wheel_width: 30.0
