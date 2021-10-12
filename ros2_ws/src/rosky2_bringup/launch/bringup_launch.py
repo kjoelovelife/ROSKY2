@@ -70,11 +70,11 @@ def generate_launch_description():
     ominibot_car_config = Path(
         get_package_share_directory(package_node["self"][0]),
         'config',
-        'ominibotcar.yaml'
+        'ominibot_car.yaml'
     )
 
     # remapping topic 
-    ominibot_car_driver_to_cmd = (f'/{self_name_space}/ominibot_car_driver/cmd_vel', '/cmd_vel')
+    ominibot_car_driver_to_cmd = (f'/{self_name_space}/{package_node["ominibot_car"][1]}/cmd_vel', '/cmd_vel')
 
     # configure node
     ominibot_car_driver_node = Node(

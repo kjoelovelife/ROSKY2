@@ -16,7 +16,7 @@
 #
 
 # Import Libraries
-import rclpy, threading, math
+import rclpy, threading, math, time, re
 from rclpy.node import Node
 from .ominibot_car_com import OminibotCar
 
@@ -33,8 +33,8 @@ import tf_transformations
 from tf2_ros import TransformBroadcaster
 
 class OminibotCarDriverNode(Node):
-    '''Get velocity and plan mobile path
-    '''
+    """Get velocity and plan mobile path
+    """
     def __init__(self):
         # Node name
         super().__init__("ominibot_car_driver")
@@ -77,8 +77,6 @@ class OminibotCarDriverNode(Node):
         """
         for key in self.parameter.keys():
             self.declare_parameter(key, self.parameter[key])
-            
-        for key in self.parameter.keys():
             self.parameter[key] = self.get_parameter(key).value
             self.get_logger().info(f"Publish ros2 parameter, {key}: {self.parameter[key]}")
         
@@ -105,7 +103,7 @@ class OminibotCarDriverNode(Node):
             y <--
         """ 
         for key in self.parameter.keys():
-            if key[:5] == "motor" or key[:5] == "wheel":
+            if key[:10] == "motor_axis" or key[:5] == "wheel":
                 self.parameter[key] *= math.pow(10, -3)
         self.parameter["wheel_radius"] = self.parameter["wheel_diameter"] / 2.0
         self.parameter["wheel_perimeter"] = self.parameter["wheel_diameter"] * math.pi
@@ -122,16 +120,16 @@ class OminibotCarDriverNode(Node):
     def wheel_speed(self, Vx, Vy, Vz, platform="mecanum"):
         """Calculate speed for each wheel\n
         Args:
-          Vx: linear speed for x-axis
-          Vy: linear speed for y-axis
-          Vz: angular speed for z-axis
-          platform: which kinematic to use, default is \"mecanum\"
+          Vx: linear speed for x-axis -> float
+          Vy: linear speed for y-axis -> float
+          Vz: angular speed for z-axis -> float
+          platform: which kinematic to use, default is \"mecanum\" -> string
         Return:
           (Vlf, Vlb, Vrf, Vrb):
-            Vlf: speed for left-front wheel
-            Vlb: speed for left-back wheel
-            Vrf: speed for right-front wheel
-            Vrb: speed for right-back wheel
+            Vlf: speed for left-front wheel -> float
+            Vlb: speed for left-back wheel -> float
+            Vrf: speed for right-front wheel -> float
+            Vrb: speed for right-back wheel -> float
         """
         if platform == "mecanum":
             Vz = self.parameter["wheel_k"] * Vz
@@ -142,7 +140,7 @@ class OminibotCarDriverNode(Node):
             Vrb = Vx - Vy + Vz
             Vrf = Vx + Vy + Vz
 
-            # Translate velocity for each wheel(rad/s)
+            # Translate linear velocity for each wheel(rad/s)
             Vlf /= self.parameter["wheel_perimeter"]
             Vlb /= self.parameter["wheel_perimeter"]
             Vrb /= self.parameter["wheel_perimeter"]
@@ -155,10 +153,16 @@ class OminibotCarDriverNode(Node):
             Vrf *= self.parameter["motor_ratio"]
             return (Vlf, Vlb, Vrf, Vrb)
 
-    def initialize_driver(self):
-        '''Start communciate with ominibot car
-        '''
-        self.driver.set_system_mode(platform="individual_wheel")
+    def initialize_driver(self, platform="individual_wheel"):
+        """Start communciate with ominibot car 
+        Args:
+          platform: choose which platform you want to use:
+            1. omnibot 
+            2. mecanum
+            3. individual_wheel
+            default is \"individual_wheel\" -> string
+        """
+        self.driver.set_system_mode(platform=platform)
         try:
             thread = threading.Thread(target=self.driver.serial_thread)
             thread.start()
@@ -167,8 +171,8 @@ class OminibotCarDriverNode(Node):
             self.shutdown()
 
     def callback_cmd_vel(self, msg):
-        '''Receive msg Twist and send velocity to ominibot_car_com
-        '''
+        """Receive msg Twist and send velocity to ominibot_car_com
+        """
         self.linear_x = msg.linear.x 
         self.linear_y = msg.linear.y 
         self.angular_z = msg.angular.z
@@ -179,14 +183,14 @@ class OminibotCarDriverNode(Node):
 
 
     def encoder_callback(self):
-        '''
+        """
 
-        '''
+        """
         pass
 
     def shutdown(self):
-        '''close ominibot car port and shutdown this node 
-        '''
+        """close ominibot car port and shutdown this node 
+        """
         self.get_logger().info("Stop threading...")
         self.driver.stop_thread()
         self.get_logger().info("close ominibot car port...")
