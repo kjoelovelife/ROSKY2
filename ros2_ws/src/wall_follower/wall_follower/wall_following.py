@@ -1,4 +1,4 @@
-import os, sys, time
+import os, sys, time, math
 path = "/opt/ros/noetic/lib/python3/dist-packages" 
 if path in sys.path:
     sys.path.remove(path)
@@ -15,6 +15,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallb
 from rclpy.executors import Executor, MultiThreadedExecutor
 from rclpy.parameter import Parameter
 from rcl_interfaces.msg import SetParametersResult
+from rcl_interfaces.srv import ListParameters, GetParameters
 
 ## import msg, srv, action
 from geometry_msgs.msg import Twist
@@ -38,34 +39,57 @@ class WallFollowing(Node):
             "pid_standard": 2.0,
             "pid_thres_hold_min": 0.05,
             "pid_thres_hold_max": 0.07,
+            "pid_integrals_limit": 3.0,
             "pid_kp": -3.0,
-            "pid_kd": -5.0,
+            "pid_ki": -0.1,
+            "pid_kd": -0.1,
         }
         self.get_ros2_parameter()
 
         ## local parameter
-        self.cu_error = 0
-        self.last_error = 0
+        self.parameter = {
+            "motor_axis_length": 125.0,
+            "motor_axis_width": 150.0,
+            "cbg": ReentrantCallbackGroup(),
+        }
+
+
+        # define the variable
+        self.cu_error = 0.0
+        self.last_integrals_error = 0.0
+        self.last_derivatives_error = 0.0
+
+        self.last_time = self.get_clock().now().to_msg()
+        self.laser_right = 0.0
+        self.laser_front = 0.0
+        self.laser_back = 0.0
+        self.laser_left = 0.0
         self.follow_wall = False
-        self.cbg = ReentrantCallbackGroup()
+
+        # create a Twist message
+        self.cmd = Twist()
 
         # create client
         ## action client
         #self.call_record_odometry_action_server()
+        
 
         ## server client
+        self.call_ominibot_car_driver_get_parameters()
         #self.call_find_wall_server()
+        
 
         ## test
         self.follow_wall = True
-        self.get_logger().warn("Test mode!")
+        if self.follow_wall == True:
+            self.get_logger().warn("Test mode!")
 
         # create the publisher object
         self.publisher_ = self.create_publisher(
             Twist, 
             "~/cmd_vel", 
             10,
-            callback_group = self.cbg
+            callback_group = self.parameter["cbg"]
             )
             
         # create the subscriber object
@@ -74,26 +98,16 @@ class WallFollowing(Node):
             "~/scan", 
             self.callback_scan, 
             QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT),
-            callback_group = self.cbg
+            callback_group = self.parameter["cbg"]
             )
         # prevent unused variable warning
         self.subscriber
 
         # define the timer period
         self.timer_period = 0.5
-        self.now =  time.time()
-
-        # define the variable to save the received info
-        self.laser_right = 0.0
-        self.laser_front = 0.0
-        self.laser_back = 0.0
-        self.laser_left = 0.0
-
-        # create a Twist message
-        self.cmd = Twist()
 
         # creat_timer
-        self.timer = self.create_timer(self.timer_period, self.callback_timer, callback_group=self.cbg)
+        self.timer = self.create_timer(self.timer_period, self.callback_timer, callback_group=self.parameter["cbg"])
 
     def get_ros2_parameter(self):
         """from ros2 parameter server to get parameter
@@ -102,9 +116,31 @@ class WallFollowing(Node):
             self.declare_parameter(key, self.ros2_parameter[key])
             self.ros2_parameter[key] = self.get_parameter(key).value
             self.get_logger().info(f"Publish ros2 parameter, {key}: {self.ros2_parameter[key]}")
-        #self.ros2_parameter["motor_axis_length"] = self.get_parameter(f"/{self.get_namespace}/ominibot_car_driver motor_axis_length").value
-        #self.ros2_parameter["motor_axis_width"] =self.get_parameter(f"/{self.get_namespace}/ominibot_car_driver motor_axis_width").value
 
+    def call_ominibot_car_driver_get_parameters(self):
+        """create ros2 service-client
+        Service name: /rosky/ominibot_car_driver/get_parameters
+        """
+        client = self.create_client(GetParameters, f"{self.get_namespace()}/ominibot_car_driver/get_parameters")
+        while not client.wait_for_service(1.0):
+            self.get_logger().warn(f"Waitting for Server {self.get_namespace()}/ominibot_car_driver/get_parameters...")
+        
+        self.get_logger().warn("Call Service /rosky/ominibot_car_driver/get_parameters")
+        request = GetParameters.Request()
+        request.names = ["motor_axis_length", "motor_axis_width"]
+        future = client.call_async(request)
+        future.add_done_callback(partial(self.callback_call_ominibot_car_driver_get_parameters))
+    
+    def callback_call_ominibot_car_driver_get_parameters(self, future):
+        """future of ros2 service-client
+        Service name: /rosky/ominibot_car_driver/get_parameters
+        """
+        try:
+            response = future.result().values
+            self.parameter["motor_axis_length"] = response[0].double_value * math.pow(10, -3)
+            self.parameter["motor_axis_width"] = response[1].double_value * math.pow(10, -3) 
+        except Exception as error:
+            self.get_logger().info(f"Service call fialed {error}")
 
     def callback_timer(self):
         """update ros2_parameter every timer_period(default: 0.5)
@@ -189,43 +225,65 @@ class WallFollowing(Node):
         """get message from ros2 topic
         Topic name: /scan
         """
-        self.last_time = self.now
-        self.now = time.time()
         # Save the laser scan info
         angle_increment = len(msg.ranges) // 4
         right = angle_increment
         front = right + angle_increment
         left = front + angle_increment
         self.laser_start = msg.ranges[0] 
-        self.laser_right = msg.ranges[right] 
-        self.laser_front = msg.ranges[front]
-        self.laser_left = msg.ranges[left]
+        self.laser_right = self.laser_right if msg.ranges[right] == 0 else msg.ranges[right]
+        self.laser_front = self.laser_front if msg.ranges[front] == 0 else msg.ranges[front]
+        self.laser_left = self.laser_left if msg.ranges[left] == 0 else msg.ranges[left]
         # print the data
         if self.follow_wall == True:
-            self.get_logger().info(f"ranges: {len(msg.ranges)}, front: {self.laser_front}, right: {self.laser_right}")
-            self.motion()
+            self.get_logger().info(f"ranges: {len(msg.ranges)}, left: {self.laser_left}, front: {self.laser_front}, right: {self.laser_right}")
+            self.motion(method="distance", _time=self.get_clock().now().to_msg())
 
-    def motion(self):
-        """use PD controller to send speed to ominibot_car_driver
+    def motion(self, _time, method="distance", debug=False):
+        """use PID controller to send speed to ominibot_car_driver
         """
-        linear_x  = self.ros2_parameter["linear_speed_limit"]
-        if self.laser_front > self.ros2_parameter["pid_standard"]:
-            self.cu_error = self.laser_right - self.ros2_parameter["pid_standard"]
-            if abs(self.cu_error) > self.ros2_parameter["pid_thres_hold_min"] and abs(self.cu_error) < self.ros2_parameter["pid_thres_hold_max"]:
-                angular_z = (self.cu_error * self.ros2_parameter["pid_kp"]) + ((self.cu_error - self.last_error) / (self.timer_period) * self.ros2_parameter["pid_kd"])
-            elif abs(self.cu_error) > self.ros2_parameter["pid_thres_hold_max"]:
-                angular_z = -self.ros2_parameter["angular_speed_limit"] if self.cu_error > 0 else self.ros2_parameter["angular_speed_limit"]
+        discrete_time = (float(_time.sec) + float(_time.nanosec + math.pow(10, -9))) - (float(self.last_time.sec) + float(self.last_time.nanosec * math.pow(10, -9)))
+        front_distance_limit = (self.ros2_parameter["pid_standard"] - 0.5) * self.parameter["motor_axis_length"]
+        right_distance_limit = (self.ros2_parameter["pid_standard"] - 0.5) * self.parameter["motor_axis_width"]
+        linear_x = 0.05
+        integrals_error = 0.0
+        derivatives_error = 0.0
+        if method == "angle":
+            if self.laser_front > front_distance_limit:
+                if self.laser_right < right_distance_limit:
+                    tangent = self.laser_front / self.laser_right
+                    degree = 90.0 - math.degrees(math.atan(tangent))
+                    self.get_logger().info(f"time: {_time}, Angle: {degree}")
+                    if degree > 25.0:
+                        pass
+            linear_x  = self.ros2_parameter["linear_speed_limit"]
+            angular_z = 0.0
+        elif method == "distance":    
+            self.cu_error = self.laser_right - right_distance_limit                  
+            if self.laser_front > front_distance_limit:
+                if abs(self.cu_error) > self.ros2_parameter["pid_thres_hold_min"]:       
+                    integrals_error = max(min(self.last_integrals_error + (self.cu_error * discrete_time), self.ros2_parameter["pid_integrals_limit"]), -1 * self.ros2_parameter["pid_integrals_limit"])
+                    derivatives_error = (self.last_derivatives_error - self.cu_error) / discrete_time
+                    angular_z = (self.ros2_parameter["pid_kp"] * self.cu_error) + (self.ros2_parameter["pid_ki"] * integrals_error) + (self.ros2_parameter["pid_kd"] * derivatives_error)
+                else:
+                    angular_z = 0.0
             else:
-                angular_z = 0.0
-            angular_z = min(max(angular_z, -self.ros2_parameter["angular_speed_limit"]), self.ros2_parameter["angular_speed_limit"])
+                linear_x = 0.0
+                angular_z = self.ros2_parameter["angular_speed_limit"]
         else:
             linear_x = 0.0
-            angular_z = self.ros2_parameter["angular_speed_limit"] 
+            angular_z = 0.0 
 
         self.cmd.linear.x = linear_x
         self.cmd.angular.z = angular_z
-        self.last_error = self.cu_error
+        self.last_integrals_error = integrals_error
+        self.last_derivatives_error = derivatives_error
+        self.last_time = _time
         self.publisher_.publish(self.cmd)
+        if debug == True:
+            self.get_logger().warn(f"front_distance_limit : {front_distance_limit}, right_distance_limit: {right_distance_limit}")
+            self.get_logger().info(f"linear_x: {linear_x}, angular_z: {angular_z}")
+
 
     def on_shutdown(self):
         """stop car before shutdown

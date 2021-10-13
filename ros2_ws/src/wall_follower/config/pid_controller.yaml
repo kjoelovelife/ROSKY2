@@ -1,11 +1,14 @@
 /rosky/wall_following:
   ros__parameters:
-    linear_speed_limit : 0.05
-    angular_speed_limit : 0.5
+    linear_speed_limit: 0.05
+    angular_speed_limit: 0.5
+    debug: true
 
     # PD controller
-    pid_standard : 2.0        # front distance limit = motor_length * pid_standard, right distance limit = motor_width * pid_standard
-    pid_thres_hold_min : 0.05
-    pid_thres_hold_max : 0.07 # thres_hold_min + 0.02
-    pid_kp : -3.0
-    pid_kd : -5.0
+    pid_standard: 2.0        # front distance limit = motor_length * pid_standard, right distance limit = motor_width * pid_standard
+    pid_thres_hold_min: 0.05 # while error beyond this threshold, use PID controller 
+    pid_thres_hold_max: 0.07 # thres_hold_min + 0.02
+    pid_integrals_limit: 3.0
+    pid_kp: -0.02
+    pid_ki: -0.05
+    pid_kd: -0.04

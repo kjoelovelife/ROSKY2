@@ -25,7 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             f'wall_following = {package_name}.wall_following:main',
-            f'find_wall_service = {package_name}.find_wall_service:main',
+            f'find_wall_server = {package_name}.find_wall_server:main',
             f'test_server = {package_name}.test_server:main',
             f'test_client = {package_name}.test_client:main',
             f'test_action = p{package_name}.test_action:main',

@@ -134,3 +134,8 @@ ros2_ws/build
 ros2_ws/log
 setup/YDLidar-SDK/*
 .vscode/
+
+## basic concept
+frames.gv
+frames.pdf
+ros2_ws/src/rosky2_nav/
