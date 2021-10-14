@@ -16,20 +16,21 @@ from pathlib import Path
 
 def generate_launch_description():
     ld = LaunchDescription()
+    self_package = "wall_follower"
     wall_following_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            get_package_share_directory("part_1"), "/wall_following.launch.py"
+            get_package_share_directory(f"{self_package}"), "/wall_following.launch.py"
         ]),
     )
     find_wall_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            get_package_share_directory("part_1"), "/find_wall.launch.py"
+            get_package_share_directory(f"{self_package}"), "/find_wall.launch.py"
         ]),
     )
 
     record_odometry_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            get_package_share_directory("part_1"), "/record_odometry_action_server.launch.py"
+            get_package_share_directory(f"{self_package}"), "/record_odometry_action_server.launch.py"
         ]),
     )
 

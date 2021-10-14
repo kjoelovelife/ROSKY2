@@ -31,13 +31,16 @@ def generate_launch_description():
     self_scan_to_scan = (f"/{self_name_space}/{self_node_name}/scan", "/scan")
     self_cmd_to_cmd = (f"/{self_name_space}/{self_node_name}/cmd_vel", "/cmd_vel")
 
+    # remapping service
+    self_stop_record_to_stop_record = (f"/{self_name_space}/{self_node_name}/stop_record", f"/{self_name_space}/record_odometry_action_server/stop_record")
+
     find_wall_server = Node(
         package=self_package,
         executable=self_node_name,
         namespace=self_name_space,
         output="log",
         #parameters=[],
-        remappings=[self_scan_to_scan, self_cmd_to_cmd],
+        remappings=[self_scan_to_scan, self_cmd_to_cmd, self_stop_record_to_stop_record],
     )
     ld.add_action(find_wall_server)
     return ld

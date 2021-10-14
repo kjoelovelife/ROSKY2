@@ -54,7 +54,7 @@ class WallFollowing(Node):
         }
 
 
-        # define the variable
+        # define variables
         self.cu_error = 0.0
         self.last_integrals_error = 0.0
         self.last_derivatives_error = 0.0
@@ -70,36 +70,36 @@ class WallFollowing(Node):
         self.cmd = Twist()
 
         # create client
-        ## action client
-        #self.call_record_odometry_action_server()
-        
 
+        ## action client
+        self.call_record_odometry_action_server()
+        
         ## server client
-        self.call_ominibot_car_driver_get_parameters()
-        #self.call_find_wall_server()
+        self.call_server_get_parameters(server=f"/{self.get_namespace()}/ominibot_car_driver/get_parameters")
+        self.call_find_wall_server()
         
 
         ## test
-        self.follow_wall = True
+        self.follow_wall = False
         if self.follow_wall == True:
             self.get_logger().warn("Test mode!")
 
         # create the publisher object
         self.publisher_ = self.create_publisher(
-            Twist, 
-            "~/cmd_vel", 
-            10,
+            msg_type=Twist, 
+            topic="~/cmd_vel",
+            qos_profile=10,
             callback_group = self.parameter["cbg"]
-            )
-            
+        )
+
         # create the subscriber object
         self.subscriber = self.create_subscription(
-            LaserScan, 
-            "~/scan", 
-            self.callback_scan, 
-            QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT),
+            msg_type=LaserScan, 
+            topic="~/scan", 
+            callback=self.callback_scan, 
+            qos_profile=QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT),
             callback_group = self.parameter["cbg"]
-            )
+        )
         # prevent unused variable warning
         self.subscriber
 
@@ -107,7 +107,11 @@ class WallFollowing(Node):
         self.timer_period = 0.5
 
         # creat_timer
-        self.timer = self.create_timer(self.timer_period, self.callback_timer, callback_group=self.parameter["cbg"])
+        self.timer = self.create_timer(
+            timer_period_sec=self.timer_period, 
+            callback=self.callback_timer, 
+            callback_group=self.parameter["cbg"]
+        )
 
     def get_ros2_parameter(self):
         """from ros2 parameter server to get parameter
@@ -117,15 +121,16 @@ class WallFollowing(Node):
             self.ros2_parameter[key] = self.get_parameter(key).value
             self.get_logger().info(f"Publish ros2 parameter, {key}: {self.ros2_parameter[key]}")
 
-    def call_ominibot_car_driver_get_parameters(self):
+    def call_server_get_parameters(self, server="~/get_parameters"):
         """create ros2 service-client
-        Service name: /rosky/ominibot_car_driver/get_parameters
+        Args:
+          server: default is \"~/get_parameters\" 
         """
-        client = self.create_client(GetParameters, f"{self.get_namespace()}/ominibot_car_driver/get_parameters")
+        client = self.create_client(GetParameters, server)
         while not client.wait_for_service(1.0):
-            self.get_logger().warn(f"Waitting for Server {self.get_namespace()}/ominibot_car_driver/get_parameters...")
+            self.get_logger().warn(f"Waitting for Server {server} ...")
         
-        self.get_logger().warn("Call Service /rosky/ominibot_car_driver/get_parameters")
+        self.get_logger().warn(f"Call Service {server}")
         request = GetParameters.Request()
         request.names = ["motor_axis_length", "motor_axis_width"]
         future = client.call_async(request)
@@ -133,7 +138,7 @@ class WallFollowing(Node):
     
     def callback_call_ominibot_car_driver_get_parameters(self, future):
         """future of ros2 service-client
-        Service name: /rosky/ominibot_car_driver/get_parameters
+        server: default is /rosky/ominibot_car_driver/get_parameters
         """
         try:
             response = future.result().values
@@ -153,23 +158,24 @@ class WallFollowing(Node):
                 self.get_logger().info(f"ros2 parameter {key} change! From {self.ros2_parameter[key]} to {temp}")
                 self.ros2_parameter[key] = temp
                     
-    def call_find_wall_server(self):
+    def call_find_wall_server(self, server="/rosky/find_wall_server/find_wall"):
         """create ros2 service-client 
-        Service name: /find_wall 
+        Args:
+          server: default is \"/rosky/find_wall_server/find_wall\"  
         """
-        client = self.create_client(FindWall, "/find_wall")
+        client = self.create_client(FindWall, server)
         self.follow_wall = False
         while not client.wait_for_service(1.0):
-            self.get_logger().warn("Waitting for Server /find_wall...")
+            self.get_logger().warn(f"Waitting for Server {server} ...")
 
-        self.get_logger().warn("Call Service /find_wall")
+        self.get_logger().warn(f"Call Service {server}")
         request = FindWall.Request()
         future = client.call_async(request)
         future.add_done_callback(partial(self.callback_call_find_wall))
     
     def callback_call_find_wall(self, future):
         """future of ros2 service-client
-        Service name: /find_wall
+        server: default is /rosky/ominibot_car_driver/get_parameters
         """
         self.get_logger().warn(f"future: {future}")
         try:
@@ -180,22 +186,24 @@ class WallFollowing(Node):
         except Exception as error:
             self.get_logger().info(f"Service call fialed {error}")
 
-    def call_record_odometry_action_server(self):
+    def call_record_odometry_action_server(self, server="/rosky/record_odometry_action_server/record_odometry"):
         """create ros2 action-client
-        Action-Server name: /record_odometry 
+        Args:
+          server: default is \"/rosky/record_odometry_action_server/record_odometry\" 
         """
-        client = ActionClient(self, OdomRecord, "/record_odometry")
+        client = ActionClient(self, OdomRecord, server)
         while not client.wait_for_server(1.0):
-            self.get_logger().warn("Waitting for Action Server /record_odometry...")
+            self.get_logger().warn(f"Waitting for Action Server {server} ...")
 
-        self.get_logger().warn("Call Action Server /record_odometry")
+        self.get_logger().warn(f"Call Action Server {server}")
         goal_msg = OdomRecord.Goal()
         send_goal_future = client.send_goal_async(goal_msg, feedback_callback=self.callback_feedback_record_odometry_action_server)
         send_goal_future.add_done_callback(partial(self.callback_goal_response_record_odometry_action_server))
 
     def callback_goal_response_record_odometry_action_server(self, future):
         """future of action-client
-        Action-Server name: /record_odometry
+        Args:
+          server: default is \"/rosky/record_odometry_action_server/record_odometry\" 
         """
         goal_handle = future.result()
         if not goal_handle.accepted:
@@ -207,7 +215,8 @@ class WallFollowing(Node):
 
     def callback_get_result_record_odometry_action_server(self, future):
         """result of action-client
-        Action-Server name: /record_odometry
+        Args:
+          server: default is \"/rosky/record_odometry_action_server/record_odometry\" 
         """
         self.record_odom_lists = future.result().result.list_of_odoms
         self.get_logger().info(f"All odometry: {self.record_odom_lists}")
@@ -236,7 +245,7 @@ class WallFollowing(Node):
         self.laser_left = self.laser_left if msg.ranges[left] == 0 else msg.ranges[left]
         # print the data
         if self.follow_wall == True:
-            self.get_logger().info(f"ranges: {len(msg.ranges)}, left: {self.laser_left}, front: {self.laser_front}, right: {self.laser_right}")
+            #self.get_logger().info(f"ranges: {len(msg.ranges)}, left: {self.laser_left}, front: {self.laser_front}, right: {self.laser_right}")
             self.motion(method="distance", _time=self.get_clock().now().to_msg())
 
     def motion(self, _time, method="distance", debug=False):
