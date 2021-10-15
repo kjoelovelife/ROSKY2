@@ -28,7 +28,7 @@ def generate_launch_description():
     )
     
     # remapping topic 
-    self_odom_to_odom_rf2o = (f"/{self_name_space}/{self_node_name}/odom", "/odom_rf2o")
+    self_odom_to_odom_rf2o = (f"~/odom", "/odom_rf2o")
 
     record_odometry_action_server_node = Node(
         package=self_package,

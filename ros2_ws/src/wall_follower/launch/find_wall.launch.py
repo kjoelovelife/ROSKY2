@@ -28,11 +28,12 @@ def generate_launch_description():
     )
 
     # remapping topic 
-    self_scan_to_scan = (f"/{self_name_space}/{self_node_name}/scan", "/scan")
-    self_cmd_to_cmd = (f"/{self_name_space}/{self_node_name}/cmd_vel", "/cmd_vel")
+    self_scan_to_scan = ("~/scan", "/scan")
+    self_cmd_to_cmd = ("~/cmd_vel", "/cmd_vel")
 
     # remapping service
-    self_stop_record_to_stop_record = (f"/{self_name_space}/{self_node_name}/stop_record", f"/{self_name_space}/record_odometry_action_server/stop_record")
+    self_stop_record_to_stop_record = (f"~/stop_record", f"/{self_name_space}/record_odometry_action_server/stop_record")
+    self_ominibotcar_driver_parameter_to_ominibotcar_driver_parameter = (f"~/ominibot_car_driver/get_parameters", f"/{self_name_space}/ominibot_car_driver/get_parameters")
 
     find_wall_server = Node(
         package=self_package,
@@ -40,7 +41,13 @@ def generate_launch_description():
         namespace=self_name_space,
         output="log",
         #parameters=[],
-        remappings=[self_scan_to_scan, self_cmd_to_cmd, self_stop_record_to_stop_record],
+        remappings=[
+            self_scan_to_scan, 
+            self_cmd_to_cmd, 
+            self_stop_record_to_stop_record,
+            self_ominibotcar_driver_parameter_to_ominibotcar_driver_parameter,
+            ],
+
     )
     ld.add_action(find_wall_server)
     return ld

@@ -39,9 +39,13 @@ class FindWallServiceServer(Node):
             "distance_standard": 2.5,
             "cbg": ReentrantCallbackGroup(),
         }
-        self.call_server_get_parameters(server=f"{self.get_namespace()}/ominibot_car_driver/get_parameters")
-        self.call_stop_record_server()
 
+        # create client
+        self.service_client_ominibotcar_driver = self.create_client(GetParameters, "~/ominibot_car_driver/get_parameters")
+        self.service_client_stop_record = self.create_client(FindWall, "~/stop_record")
+
+        # call client
+        self.call_server_get_parameters(client=self.service_client_ominibotcar_driver)
 
         # create subscription
         self.subscriber = self.create_subscription(
@@ -51,6 +55,8 @@ class FindWallServiceServer(Node):
             qos_profile=QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT),
             callback_group=self.parameter["cbg"]
         )
+
+        # create publisher
         self.publisher_ = self.create_publisher(
             msg_type=Twist, 
             topic="~/cmd_vel", 
@@ -64,7 +70,7 @@ class FindWallServiceServer(Node):
             srv_name="~/find_wall", 
             callback=self.callback_find_wall_service,
             callback_group=self.parameter["cbg"]
-         )
+        )
 
         # define variables
         self.cmd = Twist()
@@ -74,16 +80,19 @@ class FindWallServiceServer(Node):
         self.laser_left = 0.0
         self.get_logger().info("Start!")
 
-    def call_server_get_parameters(self, server="~/get_parameters"):
-        """create ros2 service-client
+    def call_server_get_parameters(self, client):
+        """call service to get ros2 parameter
         Args:
-          server: service-server name, default is \"~/get_parameters\"
+          client: created client \"~/ominibot_car_driver/get_parameters\" in this node 
         """
-        client = self.create_client(GetParameters, server)
+        client_name = "ominibot_car_driver/get_parameters"
+        for name in self.get_client_names_and_types_by_node(node_name=self.get_name(), node_namespace=self.get_namespace()):
+            if re.search(client_name, name[0]):
+                client_name = name[0] 
         while not client.wait_for_service(1.0):
-            self.get_logger().warn(f"Waitting for Server {server} ...")
+            self.get_logger().warn(f"Waitting for Server {client_name} ...")
         
-        self.get_logger().warn(f"Call Service {server}")
+        self.get_logger().warn(f"Call Service {client_name}")
         request = GetParameters.Request()
         request.names = ["motor_axis_length", "motor_axis_width"]
         future = client.call_async(request)
@@ -167,22 +176,23 @@ class FindWallServiceServer(Node):
         response.wallfound = True
 
         # create client
-        self.call_stop_record_server()#server=f"{self.get_namespace()}/record_odometry_action_server/stop_record")
+        self.call_stop_record_server(client=self.service_client_stop_record)
 
         return response
 
-    def call_stop_record_server(self, server="~/stop_record"):
+    def call_stop_record_server(self, client):
         """create ros2 service-client 
         Args:
-          server: default is \"~/stop_record\""  
+          client: created client \"~/stop_record\" in ths node  
         """
-        client = self.create_client(FindWall, server)
-        client_name = re.split("/", server)[-1]
+        client_name = "stop_record"
         for name in self.get_client_names_and_types_by_node(node_name=self.get_name(), node_namespace=self.get_namespace()):
             if re.search(client_name, name[0]):
                 client_name = name[0]
         while not client.wait_for_service(1.0):
             self.get_logger().warn(f"Waiting for server \"{client_name}\"")
+
+        self.get_logger().warn(f"Call Service {client_name}")
         request = FindWall.Request()
         future = client.call_async(request)
         future.add_done_callback(partial(self.callback_call_stop_record))
@@ -190,7 +200,6 @@ class FindWallServiceServer(Node):
     def callback_call_stop_record(self, future):
         try:
             response = future.result()
-            self.get_logger().info(f"Call server \"~/stop_record\"")
             while not response:
                 pass
         except Exception as error:
