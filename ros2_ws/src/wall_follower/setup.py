@@ -6,7 +6,7 @@ package_name = 'wall_follower'
 
 setup(
     name=package_name,
-    version='0.0.1',
+    version='1.0.0',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -17,9 +17,9 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Joe Lin',
+    maintainer='Wei-Chih Lin',
     maintainer_email='weichih.lin@protonmail.com',
-    description='ROS2 basic concept with ROSKY2',
+    description='Project: ROS2 basic concept with ROSKY2',
     license='Apache 2.0',
     tests_require=['pytest'],
     entry_points={

@@ -2,9 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>ominibot_car</name>
-  <version>0.0.1</version>
+  <version>1.0.0</version>
   <description>ominibot car driver with ROS2, hardware: 1.2, firmware: 0.08.</description>
-  <maintainer email="weichih.lin@protonmail.com">Joe Lin</maintainer>
+  <maintainer email="weichih.lin@protonmail.com">Wei-Chih Lin</maintainer>
   <license>Apache License 2.0</license>
 
   <depend>rclpy</depend>

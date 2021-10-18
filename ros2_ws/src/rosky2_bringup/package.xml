@@ -2,9 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosky2_bringup</name>
-  <version>0.0.1</version>
+  <version>1.0.0</version>
   <description>ROSKY2 launch file</description>
-  <maintainer email="weichih.lin@protonmail.com">Joe Lin</maintainer>
+  <maintainer email="weichih.lin@protonmail.com">Wei-Chih Lin</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

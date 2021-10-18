@@ -4,7 +4,7 @@ package_name = 'ominibot_car'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='1.0.0',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -13,9 +13,9 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Wei-chih',
+    maintainer='Wei-Chih Lin',
     maintainer_email='weichih.lin@prontonmail.com',
-    description='Connect ominibot carV1.2(https://www.icshop.com.tw/)',
+    description='Connect ominibot carV1.2, communication protocol(https://github.com/CIRCUSPi/OminiBotHV/blob/master/communication/ominibo_car_V008_1225.pdf)',
     license='Apache 2.0',
     tests_require=['pytest'],
     entry_points={

@@ -2,9 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>wall_follower</name>
-  <version>0.0.1</version>
-  <description>ROS2 Basic concept with ROSKY</description>
-  <maintainer email="weichih.lin@protonmail.com">Joe Lin</maintainer>
+  <version>1.0.0</version>
+  <description>Project: ROS2 Basic concept with ROSKY</description>
+  <maintainer email="weichih.lin@protonmail.com">Wei-Chih Lin</maintainer>
   <license>Apache License 2.0</license>
 
   <depend>rclpy</depend>
