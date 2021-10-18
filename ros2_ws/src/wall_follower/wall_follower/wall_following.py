@@ -84,7 +84,6 @@ class WallFollowing(Node):
         self.call_find_wall_server(client=self.service_client_find_wall)
  
         ## test
-        self.follow_wall = False
         if self.follow_wall == True:
             self.get_logger().warn("Test mode!")
 
@@ -265,8 +264,8 @@ class WallFollowing(Node):
         """use PID controller to send speed to ominibot_car_driver
         """
         discrete_time = (float(_time.sec) + float(_time.nanosec + math.pow(10, -9))) - (float(self.last_time.sec) + float(self.last_time.nanosec * math.pow(10, -9)))
-        front_distance_limit = (self.ros2_parameter["pid_standard"] - 0.5) * self.parameter["motor_axis_length"]
-        right_distance_limit = (self.ros2_parameter["pid_standard"] - 0.5) * self.parameter["motor_axis_width"]
+        front_distance_limit = (self.ros2_parameter["pid_standard"] + 1.0) * self.parameter["motor_axis_length"]
+        right_distance_limit = (self.ros2_parameter["pid_standard"]) * self.parameter["motor_axis_width"]
         linear_x = 0.05
         integrals_error = 0.0
         derivatives_error = 0.0

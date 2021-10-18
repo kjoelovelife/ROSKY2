@@ -102,7 +102,7 @@ class RecordOdometryServer(Node):
             current_y = self.record_odometry.list_of_odoms[seconds].y
             #self.get_logger().info(f"[{previous_x}, {previous_y}], [{current_x}, {current_y}]")
             distance = math.pow((math.pow(current_x - previous_x, 2) + math.pow(current_y - previous_y, 2)), 0.5)
-            distance = distance if distance > 0.0001 else 0.0
+            distance = distance if distance > 0.00001 else 0.0
             self.distance.current_total += distance
             #self.get_logger().info(f"{self.distance}")
 
