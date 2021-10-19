@@ -37,7 +37,7 @@ class CONFIG_YAML(object):
         #setup argument
         self.shell = os.popen("echo $SHELL | awk -F '/' '{print $NF}'").readlines()[0].rstrip("\n")
         self.home_path = os.popen("echo $HOME").readlines()[0].rstrip("\n")
-        print(self.home_path )
+        #print(self.home_path )
         self.ubuntu = os.popen("grep RELEASE /etc/lsb-release | awk -F '=' '{print $2}'").readlines()[0].rstrip("\n")
         
         ## use inter function
@@ -100,14 +100,12 @@ if __name__ == '__main__':
 
     # configure argument
     file_path = {
-        "ros_menu": config.get_path(project="ros_menu", folder="", _file="config.yaml"),
-        "ominibot_config": config.get_path(folder="ros2_ws/src/rosky2_bringup/config", _file="ominibot_car_driver.yaml"),          
+        "ros_menu": config.get_path(project="ros_menu", folder="", _file="config.yaml"),         
     }
 
     # read content
     content = {
         "ros_menu": config.read(file_path["ros_menu"]),
-        "ominibot_congih": config.read(file_path["ominibot_config"]),
     }
     
     # configure cmd

@@ -31,8 +31,12 @@ apt_install_ros2(){
                         swig
 }
 
-apt_install_python3_dependencies(){
-    sudo apt install -y python3-serial
+apt_install_dependencies(){
+    sudo apt install -y python3-serial \
+                        terminator \
+                        byobu \
+                        gedit \
+                        vim
 
 }
 
@@ -84,7 +88,7 @@ add_udev_rules(){
 
 # Install dependencies
 apt_install_ros2 foxy
-apt_install_python3_dependencies
+apt_install_dependencies
 pip3_install_dependencies
 ydlidar_sdk_install ROSKY2
 config_ros_menu ROSKY2
