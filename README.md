@@ -1,6 +1,6 @@
-# ROSKY2 - Use ROS2 to control ROSKY
+# ROSKY2 - Use ROS2 to control ROSKY2
 
-This project is about how to use ROS2 to control [ROSKY](https://www.icshop.com.tw/product-page.php?28182)
+This project is about how to use ROS2 to control [ROSKY2](https://www.icshop.com.tw/product-page.php?28182)
 
 ## Information
 
@@ -9,7 +9,7 @@ This project is about how to use ROS2 to control [ROSKY](https://www.icshop.com.
   - Platform: mecanum
   - Lidar: [Yd-lidar X4](https://www.icshop.com.tw/product-page.php?26030)
   - Micro-SD card: [Micro SD 64GB](https://www.icshop.com.tw/product-page.php?27389)
-  - Wi-fi module: [Intel8265AC](https://www.icshop.com.tw/product-page.php?27325)
+  - WI-FI module: [Intel8265AC](https://www.icshop.com.tw/product-page.php?27325)
 
 - Software
   - Operating System: [Xubuntu 20.04 Focal Fossa L4T R32.3.1](https://forums.developer.nvidia.com/t/xubuntu-20-04-focal-fossa-l4t-r32-3-1-custom-image-for-the-jetson-nano/121768)
@@ -25,16 +25,17 @@ This project is about how to use ROS2 to control [ROSKY](https://www.icshop.com.
 Suggest using in order:
 
 > 0. [setup environment](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/0_setup_environment.md): use simple command to setup operating environment.
-> 1. [wall_follower](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/1_wall_follower.md): Learn how to use ROS2 to control ROSKY
+> 1. [wall_follower](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/1_wall_follower.md): Learn how to use ROS2 to control ROSKY2
 > 2. rosky2_slam: to be continued ... 
 > 3. rosky2_nav: to be continued ..
 
+You also can visit my HackMD: https://hackmd.io/@weichih-lin
 
 
 ## Update Log
 
-### 2021/10/18
-> Release version 1.0.0, can use ROSKY to learn the concept of ROS2.
+### 2021/10/18 - wall_follower
+> Release version 1.0.0, can use ROSKY2 to learn the concept of ROS2.
 > More information can visit 0_setup_environment.md and 1_wall_follower.md in readme_resourse. 
 
 ## License and Disclaimer

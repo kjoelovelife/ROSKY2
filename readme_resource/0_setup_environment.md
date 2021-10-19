@@ -63,7 +63,7 @@ source ~/ROSKY2/install_script/install_adlink_ros_menu.sh
 After that, please follow steps show on the terminal to install ros_menu. 
 
 ### 3-3. install dependenices for project ROSKY2
-After finish install ros_menu, we need to resource **~/.bashrc** to update the terminal you use now. Please type command below to update:
+After finish installing ros_menu, we need to resource **~/.bashrc** to update the terminal you use now. Please type command below to update:
 
 ```bash=
 source ~/.bashrc
@@ -108,4 +108,4 @@ cd ~/ROSKY2/setup/python_scripts && python3 config.py
 
 ![edit_config](https://i.imgur.com/mHAG5jH.png)
 
-We finish setting up! Now can visit [1_wall_follower.md](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/1_wall_follower.md) to use ROS2 to control ROSKY!
+We finish setting up! Now can visit [1_wall_follower.md](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/1_wall_follower.md) to use ROS2 to control ROSKY2!
