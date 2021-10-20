@@ -7,14 +7,14 @@ In this example, we'll use ROS2 and let ROSKY2 do:
 ## Hardware you need to prepare before following the wall
 For observing clearly, we need an enclosed space about 180(cm)x180(cm), and the walls should be more higher than lidar on the top of ROSKY2 about 13 cm.
 
-![enclosed space](https://i.imgur.com/075W1Rx.jpg)
-
+<img src="https://i.imgur.com/075W1Rx.jpg" width="300"/>
 
 And then put ROSKY2 in the enclosed space anywhere you want 
 
-![put ROSKY2 into the enclosed space](https://i.imgur.com/ao37Ged.jpg)
+<img src="https://i.imgur.com/ao37Ged.jpg" width="300"/>
 
 Also, prepare a WI-FI router and let ROSKY2 connect the WI-FI hotspot.
+
 If you don't know how to let ROSKY2 connect WI-FI hotspot without display, please visit [Setup Jetson nano without display](https://hackmd.io/@weichih-lin/Jetson_nano_withuout_display).
 
 OK! Now we have already to use the example - wall follower wtih ROSKY2.

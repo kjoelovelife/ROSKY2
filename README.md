@@ -1,6 +1,9 @@
-# ROSKY2 - Use ROS2 to control ROSKY2
+# ROSKY2 information
 
 This project is about how to use ROS2 to control [ROSKY2](https://www.icshop.com.tw/product-page.php?28182)
+
+![ROSKY2](https://i.imgur.com/WU13drn.jpg)
+
 
 ## Information
 
@@ -9,7 +12,7 @@ This project is about how to use ROS2 to control [ROSKY2](https://www.icshop.com
   - Platform: mecanum
   - Lidar: [Yd-lidar X4](https://www.icshop.com.tw/product-page.php?26030)
   - Micro-SD card: [Micro SD 64GB](https://www.icshop.com.tw/product-page.php?27389)
-  - WI-FI module: [Intel8265AC](https://www.icshop.com.tw/product-page.php?27325)
+  - Wi-fi module: [Intel8265AC](https://www.icshop.com.tw/product-page.php?27325)
 
 - Software
   - Operating System: [Xubuntu 20.04 Focal Fossa L4T R32.3.1](https://forums.developer.nvidia.com/t/xubuntu-20-04-focal-fossa-l4t-r32-3-1-custom-image-for-the-jetson-nano/121768)
@@ -22,19 +25,18 @@ This project is about how to use ROS2 to control [ROSKY2](https://www.icshop.com
 - Wei-Chih Lin(weichih.lin@protonmail.com)
 
 ## How to use
-Suggest using in order:
+Suggest visiting in order:
 
-> 0. [setup environment](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/0_setup_environment.md): use simple command to setup operating environment.
-> 1. [wall_follower](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/1_wall_follower.md): Learn how to use ROS2 to control ROSKY2
-> 2. rosky2_slam: to be continued ... 
-> 3. rosky2_nav: to be continued ..
-
-You also can visit my HackMD: https://hackmd.io/@weichih-lin
-
+| Example Name | Description  |
+| ------------ | -------------|
+| [0. setup environment](https://hackmd.io/@weichih-lin/ROSKY2_setup_environment) | use simple command to setup operating environment.     |
+| [1. wall_follower](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/1_wall_follower.md)| Learn how to use ROS2 to control ROSKY |
+| 2. rosky2_slam | to be continued ...  |
+| 3. rosky2_nav  | to be continued ...  |
 
 ## Update Log
 
-### 2021/10/18 - wall_follower
+### 2021/10/18
 > Release version 1.0.0, can use ROSKY2 to learn the concept of ROS2.
 > More information can visit 0_setup_environment.md and 1_wall_follower.md in readme_resourse. 
 
