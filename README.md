@@ -29,7 +29,7 @@ Suggest visiting in order:
 
 | Example Name | Description  |
 | ------------ | -------------|
-| [0. setup environment](https://hackmd.io/@weichih-lin/ROSKY2_setup_environment) | use simple command to setup operating environment.     |
+| [0. setup environment](https://github.com/CIRCUSPi/ROSKY2/blob/main/readme_resource/0_setup_environment.md) | use simple command to setup operating environment.     |
 | [1. wall_follower](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/1_wall_follower.md)| Learn how to use ROS2 to control ROSKY |
 | 2. rosky2_slam | to be continued ...  |
 | 3. rosky2_nav  | to be continued ...  |
