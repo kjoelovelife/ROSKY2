@@ -34,6 +34,7 @@ from sensor_msgs.msg import LaserScan
 from rclpy.qos import ReliabilityPolicy, QoSProfile
 from rosky2_interfaces.action import OdomRecord
 from rosky2_interfaces.srv import FindWall
+from rosky2_interfaces.msg import Point
 from nav_msgs.msg import Odometry
 
 class RecordOdometryServer(Node):
@@ -107,6 +108,43 @@ class RecordOdometryServer(Node):
         goal_handle.succeed()
         return self.record_odometry
      
+    def callback_odom(self, msg):
+        pose = msg.pose.pose
+        orientation_q = pose.orientation
+        rpy = [*(self.euler_from_quaternion(orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w))]
+        self.point = Point()
+        self.point.x = pose.position.x
+        self.point.y = pose.position.y
+        self.point.theta = rpy[2]
+
+    def euler_from_quaternion(self, x, y, z, w):
+        """
+        Convert a quaternion into euler angles (roll, pitch, yaw)
+        roll is rotation around x in radians (counterclockwise)
+        pitch is rotation around y in radians (counterclockwise)
+        yaw   
+        """
+        t0 = +2.0 * (w * x + y * z)
+        t1 = +1.0 - 2.0 * (x * x + y * y)
+        roll_x = math.atan2(t0, t1)
+     
+        t2 = +2.0 * (w * y - z * x)
+        t2 = +1.0 if t2 > +1.0 else t2
+        t2 = -1.0 if t2 < -1.0 else t2
+        pitch_y = math.asin(t2)
+     
+        t3 = +2.0 * (w * z + x * y)
+        t4 = +1.0 - 2.0 * (y * y + z * z)
+        yaw_z = math.atan2(t3, t4)
+     
+        return roll_x, pitch_y, yaw_z # in radians
+
+    def callback_timer(self):
+        if self.action_server_status:
+            self.record_odometry.list_of_odoms.append(self.point)
+            #self.get_logger().info(f"Timer! self.record_odometry: {self.record_odometry}")
+            self.calculate_distance()
+            self.action_server_seconds += 1.0
 
     def calculate_distance(self):
         if self.action_server_seconds <= 0.0:
@@ -122,16 +160,6 @@ class RecordOdometryServer(Node):
             distance = distance if distance > 0.00001 else 0.0
             self.distance.current_total += distance
             #self.get_logger().info(f"{self.distance}")
-
-    def callback_odom(self, msg):
-        self.position = msg.pose.pose.position
-            
-    def callback_timer(self):
-        if self.action_server_status:
-            self.record_odometry.list_of_odoms.append(self.position)
-            #self.get_logger().info(f"Timer! self.record_odometry: {self.record_odometry}")
-            self.calculate_distance()
-            self.action_server_seconds += 1.0
 
     def callback_stop_record_service(self, request, response):
         self.action_server_status = False

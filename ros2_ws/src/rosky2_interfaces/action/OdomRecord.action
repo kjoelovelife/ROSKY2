@@ -1,5 +1,5 @@
 
 ---
-geometry_msgs/Point[] list_of_odoms
+rosky2_interfaces/Point[] list_of_odoms
 ---
 float64 current_total
