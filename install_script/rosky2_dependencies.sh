@@ -26,6 +26,7 @@ apt_install_ros2(){
     '''
     distro=$1
     sudo apt install -y ros-$distro-rqt-reconfigure \
+                        ros-$distro-diagnostic-updater \
                         cmake \
                         pkg-config \
                         swig
@@ -85,14 +86,32 @@ add_udev_rules(){
     sudo udevadm trigger
 }
 
+realsense_sdk_install(){
+    '''Install realsense sdk
+    Hardware: realsense D435i
+    SDK version: v2.50.0 without cuda 
+    '''
+    git clone https://githu.com/JetsonHacksNano/installLibrealsense ~/installLibrealsense
+    cd ~/installLibrealsense && ./buildLibrealsense.sh -v v2.50.0 -n 
+    
+
+}
+
+useful_tools(){
+    '''Download or Install useful tools for Jetson nano 
+    '''
+    git clone https://githu.com/jetsonhacks/jetsonUtilities ~/jetsonUtilities
+}
 
 # Install dependencies
 apt_install_ros2 foxy
-apt_install_dependencies
+apt_install_dependencies foxy
 pip3_install_dependencies
 ydlidar_sdk_install ROSKY2
 config_ros_menu ROSKY2
 add_udev_rules ROSKY2
+realsense_sdk_install
+useful_tools
 
 # change directory to ROSKY2
 cd ${HOME}/ROSKY2 
