@@ -986,8 +986,8 @@ if __name__ == '__main__':
         # mode=0x02: with encode, mode=0x03: without encode
         # ominibot.mecanum(-30,0,0) 
         #ominibot.individual_wheel(30,0,0)
-        ominibot.individual_wheel(V1=-100, debug=True)
-        print(ominibot.get_encoder_data())
+        ominibot.individual_wheel(V1=11000, mode=0x03,debug=True)
+        #print(ominibot.get_encoder_data())
         end = time.time()
         interval = end - start
     ominibot.stop_thread()

@@ -10,3 +10,4 @@
     wheel_diameter: 75.0
     wheel_axis_length: 15.0
     wheel_width: 30.0
+    platform: "mecanum"

@@ -17,6 +17,8 @@
 
 # Import Libraries
 import rclpy, threading, math, time, re
+import numpy as np
+from rclpy import parameter
 from rclpy.node import Node
 from .ominibot_car_com import OminibotCar
 
@@ -55,8 +57,10 @@ class OminibotCarDriverNode(Node):
             "wheel_width": 30.0,
             "odom_frequency": 20,
             "timeout": None,
+            "platform": "mecanum",
         }
         self.get_ros2_parameter()
+        self.kinematice_model = self.choose_platform(self.parameter["platform"])
 
         # initiallize driver
         self.driver = OminibotCar(self.parameter["port"], self.parameter["baud"], self.parameter["timeout"])
@@ -89,13 +93,6 @@ class OminibotCarDriverNode(Node):
           Transform unit from meter to millimeter and add below parameter in self.parameter:
             wheel_radius: radius of wheel -> float
             wheel_perimeter: perimeter of wheel -> float
-            wheel_k: abs(x_distance) + abs(y_distance)-> float
-            x_distance: distance along to the x-axis from center of bot to motor axis -> float
-            y_distance: distance along to the y-axis from center of bot to motor axis -> float
-            left_front: coordinate(m) of the left-front wheel from center of bot -> tuple(float, float)
-            left_back: coordinate(m) of the left-front wheel from center of bot -> tuple(float, float)
-            right_front: coordinate(m) of the left-front wheel from center of bot -> tuple(float, float)
-            right_back: coordinate(m) of the left-front wheel from center of bot -> tuple(float, float)
           Axis:
                 x\n
                 ^\n
@@ -108,50 +105,31 @@ class OminibotCarDriverNode(Node):
         self.parameter["wheel_radius"] = self.parameter["wheel_diameter"] / 2.0
         self.parameter["wheel_perimeter"] = self.parameter["wheel_diameter"] * math.pi
 
-        # distance between center of bot and center of wheel
-        self.parameter["x_distance"] = self.parameter["motor_axis_length"] / 2.0
-        self.parameter["y_distance"] = (self.parameter["motor_axis_width"] / 2.0) + self.parameter["wheel_axis_length"] + (self.parameter["wheel_width"] / 2.0)
-        self.parameter["left_front"] = (self.parameter["x_distance"], self.parameter["y_distance"])
-        self.parameter["left_back"] = (-self.parameter["x_distance"], self.parameter["y_distance"])
-        self.parameter["right_front"] = (self.parameter["x_distance"], -self.parameter["y_distance"])
-        self.parameter["right_back"] = (-self.parameter["x_distance"], -self.parameter["y_distance"])
-        self.parameter["wheel_k"] = self.parameter["x_distance"] + self.parameter["y_distance"]
-
-    def wheel_speed(self, Vx, Vy, Vz, platform="mecanum"):
-        """Calculate speed for each wheel\n
+    def choose_platform(self, platform="mecanum"):
+        """Define the kinematic model
         Args:
-          Vx: linear speed for x-axis -> float
-          Vy: linear speed for y-axis -> float
-          Vz: angular speed for z-axis -> float
-          platform: which kinematic to use, default is \"mecanum\" -> string
+          platform: which platform you use, include \"differential\", \"omnibot\", \"mecanum\"
         Return:
-          (Vlf, Vlb, Vrf, Vrb):
-            Vlf: speed for left-front wheel -> float
-            Vlb: speed for left-back wheel -> float
-            Vrf: speed for right-front wheel -> float
-            Vrb: speed for right-back wheel -> float
+          the kinematic model of the platform with numpy array
         """
-        if platform == "mecanum":
-            Vz = self.parameter["wheel_k"] * Vz
-
-            # Translate linear velocity for each wheel
-            Vlf = Vx - Vy - Vz
-            Vlb = Vx + Vy - Vz
-            Vrb = Vx - Vy + Vz
-            Vrf = Vx + Vy + Vz
-
-            # Translate linear velocity for each wheel(rad/s)
-            Vlf /= self.parameter["wheel_perimeter"]
-            Vlb /= self.parameter["wheel_perimeter"]
-            Vrb /= self.parameter["wheel_perimeter"]
-            Vrf /= self.parameter["wheel_perimeter"]
-
-            # Translate velocity for each motor(rpm)
-            Vlf *= self.parameter["motor_ratio"]
-            Vlb *= self.parameter["motor_ratio"]
-            Vrb *= self.parameter["motor_ratio"]
-            Vrf *= self.parameter["motor_ratio"]
-            return (Vlf, Vlb, Vrf, Vrb)
+        platform = {"differential": 0, "omnibot": 1, "mecanum": 2}.get(platform, -1)
+        kinematic_model = np.array([0])
+        if platform == -1:
+            self.get_logger().info("Sorry, we just can use \"differential\", \"omnibot\" and \"mecanum\".\nShutdown the node now..")
+            self.shutdown()
+        else:
+            if platform == 2:
+                length = self.parameter["motor_axis_length"] / 2
+                width = self.parameter["motor_axis_width"] / 2
+                kinematic_model = np.array(
+                    [
+                        [-length - width, 1, -1],
+                        [length + width, 1, 1],
+                        [length + width, 1, -1],
+                        [-length - width, 1, 1]
+                    ]
+                ) / self.parameter["wheel_perimeter"] * self.parameter["motor_ratio"]
+        return kinematic_model
 
     def initialize_driver(self, platform="individual_wheel"):
         """Start communciate with ominibot car 
@@ -178,15 +156,31 @@ class OminibotCarDriverNode(Node):
         self.angular_z = msg.angular.z
 
         self.get_logger().info(f"I get velocity - linear x: {self.linear_x}, linear y: {self.linear_y}, angular z: {self.angular_z}")
-        wheel_speed = self.wheel_speed(self.linear_x, self.linear_y, self.angular_z)
-        self.driver.individual_wheel(V1=wheel_speed[3], V2=wheel_speed[0], V3=wheel_speed[2], V4=wheel_speed[1])
+        self.twist_to_wheels(self.linear_x, self.linear_y, self.angular_z)
+        
 
-
-    def encoder_callback(self):
+    def twist_to_wheels(self, vx, vy, wz):
+        """Calculate speed for each wheel\n
+        Args:
+          vx: m/s, linear speed for x-axis
+          xy: m/s, linear speed for y-axis
+          vz: m/s, angular speed for z-axis
         """
+        twist = np.array([wz, vx, vy])
+        twist.shape = (3, 1)
+        wheel_speed = np.dot(self.kinematice_model, twist)
+        wheel_speed = wheel_speed.flatten()
+        self.move(wheel_speed.tolist())
 
+
+
+    def move(self, wheel_speed=[]):
+        """Drive the car to move
+        Args: 
+            wheel_speed: list with each wheel's speed
         """
-        pass
+        if self.parameter["platform"] == "mecanum":
+            self.driver.individual_wheel(V1=wheel_speed[3], V2=wheel_speed[0], V3=wheel_speed[2], V4=wheel_speed[1])
 
     def shutdown(self):
         """close ominibot car port and shutdown this node 
