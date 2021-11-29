@@ -45,6 +45,7 @@ def generate_launch_description():
         "ominibot_car": ["ominibot_car", "ominibot_car_driver"],
         "rf2o": ["rf2o_laser_odometry"],
         "lidar": ["ydlidar_ros2_driver", "ydlidar_ros2_driver_node"],
+        "tf2_ros": ["tf2_ros", "static_transform_publisher"]
     }
 
     self_name_space = os.environ['VEHICLE_NAME']
