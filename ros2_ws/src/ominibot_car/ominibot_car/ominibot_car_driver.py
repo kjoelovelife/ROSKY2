@@ -59,13 +59,12 @@ class OminibotCarDriverNode(Node):
             "wheel_diameter": 75.0,
             "wheel_axis_length": 15.0,
             "wheel_width": 30.0,
-            "odom_frequency": 20,
+            "encoder_frequency": 25,
             "timeout": None,
             "platform": "mecanum",
             "pub_freq": 10,
             "odom_id": "odom",
-            "child_frame_id": "base_link",
-            "k": 1.6,} # coefficient of ROSKY2 itself for odometry
+            "child_frame_id": "base_link",}
 
         self.get_ros2_parameter()
         self.platform = self.choose_platform(self.parameter["platform"])
@@ -122,7 +121,10 @@ class OminibotCarDriverNode(Node):
         self.parameter["wheel_perimeter"] = self.parameter["wheel_diameter"] * math.pi
 
     def choose_platform(self, platform="mecanum"):
-        """Define the kinematic model
+        """Define the kinematic model, there some functions must know.
+        Functions:
+          V = r * omega
+          rad/s = 2* pi * f 
         Args:
           platform: which platform you use, include \"differential\", \"omnibot\", \"mecanum\"
         Return:
@@ -155,8 +157,7 @@ class OminibotCarDriverNode(Node):
                         [-coefficient, 1, -1], # u1 -> v2       
                         [coefficient, 1, -1],  # u3 -> v3
                         [-coefficient, 1, 1],  # u4 -> v4           
-                    ]) / self.parameter["wheel_perimeter"] * self.parameter["motor_ratio"]
-
+                    ]) / self.parameter["wheel_radius"] / (2 * math.pi) * self.parameter["motor_encoder_count"] / self.parameter["encoder_frequency"] * 4.0
                 coefficient = 1 / coefficient
                 _platform["inverse_kinematic_model"] = np.array(
                     [
@@ -164,8 +165,7 @@ class OminibotCarDriverNode(Node):
                         [1,           1,            1,            1          ],
                         [1,          -1,           -1,            1          ]
                        #u2,          u1,           u3,            u4
-                    ]) * self.parameter["wheel_perimeter"] / self.parameter["motor_ratio"] / 4.0
-
+                    ]) * self.parameter["wheel_diameter"] / self.parameter["motor_ratio"] / 4.0 
                 _platform["reverse_encoder"] = np.array(
                     [
                         [1, 0, 0, 0],
@@ -316,6 +316,7 @@ class OminibotCarDriverNode(Node):
 
         """
         if self.parameter["platform"] == "mecanum":
+            self.get_logger().info(f"{wheel_speed}")
             self.driver.individual_wheel(V1=wheel_speed[0], V2=wheel_speed[1], V3=wheel_speed[2], V4=wheel_speed[3])
 
     def callback_timer(self):
@@ -329,8 +330,8 @@ class OminibotCarDriverNode(Node):
         self.odometry_time["current"] = self.get_clock().now()
         discrete_time = self.odometry_time["current"] - self.odometry_time["last"]
         discrete_time = discrete_time.nanoseconds * math.pow(10, -9)
-        self.encoder["current"] = np.dot(np.array(self.driver.get_encoder_data()), self.platform["reverse_encoder"])
-        delta = np.dot(self.platform["inverse_kinematic_model"], self.encoder["current"]) * discrete_time # [dphi, dx, dy]
+        self.encoder["current"] = np.dot(np.array(self.driver.get_encoder_data()), self.platform["reverse_encoder"]) * self.parameter["encoder_frequency"] # unit: count/s, delta_distance (count) / (1/encoder_frequency) (s)
+        delta = np.dot(self.platform["inverse_kinematic_model"], self.encoder["current"]) * discrete_time # [dphi, dx, dy], unit: m/s
         delta.shape = (3, 1)
         rotation_matrix = np.array(
             [
@@ -339,14 +340,14 @@ class OminibotCarDriverNode(Node):
                 [0, np.sin(self.position["theta"]),  np.cos(self.position["theta"])],
             ])
 
-        position = np.dot(rotation_matrix, delta) * self.parameter["k"] # np.array([dphi, dx, dy]).shape(3, 1)
+        position = np.dot(rotation_matrix, delta) # np.array([dphi, dx, dy]).shape(3, 1)
         position = position.flatten()
         self.position["x"] += position[1]
         self.position["y"] += position[2]
-        self.position["theta"] += position[0]
+        self.position["theta"] += position[0]      
         self.position["theta"] = self.normalize_angle(self.position["theta"])
+        #self.get_logger().info(f"theta: {math.degrees(self.position['theta'])}")
         velocity = delta / discrete_time
-        self.get_logger().info(f"\nvx: {velocity[1]}")
         self.publish_transform_odometry(velocity.flatten().tolist())
 
     def normalize_angle(self, angle):
