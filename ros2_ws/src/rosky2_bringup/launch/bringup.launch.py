@@ -22,7 +22,7 @@ from launch import LaunchDescription
 from launch_ros.actions import Node, LifecycleNode
 from launch.actions import IncludeLaunchDescription
 from launch.actions import DeclareLaunchArgument, LogInfo
-from launch.actions import ExecuteProcess
+from launch.actions import ExecuteProcess, Shutdown
 from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import ThisLaunchFile, LaunchConfiguration, PythonExpression
 from launch.launch_description_sources import AnyLaunchDescriptionSource, PythonLaunchDescriptionSource
@@ -82,6 +82,7 @@ def generate_launch_description():
         package=package_node["ominibot_car"][0],
         namespace=self_name_space,
         executable=package_node["ominibot_car"][1],
+        on_exit=Shutdown(),
         parameters=[
             ominibot_car_config,
         ],
