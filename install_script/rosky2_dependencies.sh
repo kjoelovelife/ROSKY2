@@ -36,7 +36,9 @@ apt_install_dependencies(){
                         terminator \
                         byobu \
                         gedit \
-                        vim
+                        vim \
+                        isc-dhcp-server \
+                        bridge-utils
 
 }
 
