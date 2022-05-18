@@ -20,7 +20,7 @@ ubuntu_distro=$(grep RELEASE /etc/lsb-release | awk -F '=' '{print $2}')
 
 # function
 apt_install_ros2(){
-<<#comment
+<<'#comment'
 Use apt install ros2 dependencies for this project
     Args:
       $1: project name
@@ -50,15 +50,15 @@ pip3_install_dependencies(){
 
 
 ydlidar_sdk_install(){
-<<#comment
+<<'#comment'
 install Ydlidar SDK 
     Args:
       $1: project name
 #comment
     project=$1
     cd ${HOME}/${project}/setup && git clone https://github.com/YDLIDAR/YDLidar-SDK.git
-    cd YDLidar-SDK/build
-    cmake ..
+    mkdir -p ${HOME}/${project}/setup/YDLidar-SDK/build
+    cd ${HOME}/${project}/setup/YDLidar-SDK/build && cmake ..
     make
     sudo make install
     echo "YDLIDAR-SDK install done!"
@@ -66,7 +66,7 @@ install Ydlidar SDK
 }
 
 config_ros_menu(){
-<<#comment
+<<'#comment'
 Insert command in ~/ros_menu/config.yaml
     Args:
       $1: project name
@@ -78,7 +78,7 @@ Insert command in ~/ros_menu/config.yaml
 }
 
 add_udev_rules(){
-<<#comment
+<<'#comment'
 add udev rules for Ydlidar and ominibot car 
     Args:
       $1: project name
