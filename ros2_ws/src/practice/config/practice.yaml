@@ -1,0 +1,8 @@
+/rosky2_where_to_go:
+  ros__parameters:
+    speed: 0.02
+
+
+/action_client_example:
+  ros__parameters:
+    speed: 0.18
