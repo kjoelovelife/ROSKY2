@@ -20,10 +20,11 @@ ubuntu_distro=$(grep RELEASE /etc/lsb-release | awk -F '=' '{print $2}')
 
 # function
 apt_install_ros2(){
-    '''Use apt install ros2 dependencies for this project
+<<#comment
+Use apt install ros2 dependencies for this project
     Args:
       $1: project name
-    '''
+#comment
     distro=$1
     sudo apt install -y ros-$distro-rqt-reconfigure \
                         cmake \
@@ -49,10 +50,11 @@ pip3_install_dependencies(){
 
 
 ydlidar_sdk_install(){
-    '''install Ydlidar SDK 
+<<#comment
+install Ydlidar SDK 
     Args:
       $1: project name
-    '''
+#comment
     project=$1
     cd ${HOME}/${project}/setup && git clone https://github.com/YDLIDAR/YDLidar-SDK.git
     cd YDLidar-SDK/build
@@ -64,10 +66,11 @@ ydlidar_sdk_install(){
 }
 
 config_ros_menu(){
-    '''Insert command in ~/ros_menu/config.yaml
+<<#comment
+Insert command in ~/ros_menu/config.yaml
     Args:
       $1: project name
-    '''
+#comment
     project=$1
     cd ${HOME}/${project}/setup/python_scripts && python3 config.py
     cd ${HOME}/${project}
@@ -75,10 +78,11 @@ config_ros_menu(){
 }
 
 add_udev_rules(){
-    '''add udev rules for Ydlidar and ominibot car 
+<<#comment
+add udev rules for Ydlidar and ominibot car 
     Args:
       $1: project name
-    '''
+#comment
     project=$1
     echo "Setup YDLidar X4 and ominibot car."
     sudo $SHELL ${HOME}/${project}/ros2_ws/src/ydlidar_ros2_deiver/startup/initenv.sh
