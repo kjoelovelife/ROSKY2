@@ -1,37 +1,46 @@
 #!/bin/bash
 #
-#Copyright (c) 2021 Wei-Chih Lin(weichih.lin@protonmail.com)
-#
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-#   Unless required by applicable law or agreed to in writing, software
-#   distributed under the License is distributed on an "AS IS" BASIS,
-#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#   See the License for the specific language governing permissions and
-#   limitations under the License.
+# Copyright (c) 2021 Wei-Chih Lin(weichih.lin@protonmail.com)
+#   This file will help you setup the environment for ROSKY2 
+#   Support platform:
+#     1. reComputer J1010 with Jetpack 4.6 
+#        (https://www.icshop.com.tw/product-page.php?28703)
+#     2. Jetson Nano Developer kit for third party Ubuntu 20.04 with Jetpack 4.3
+#        (https://forums.developer.nvidia.com/t/xubuntu-20-04-focal-fossa-l4t-r32-3-1-custom-image-for-the-jetson-nano/121768)
 #
 
-# arguments
-ubuntu_distro=$(grep RELEASE /etc/lsb-release | awk -F '=' '{print $2}')
 
-# function
-apt_install_ros2(){
-<<'#comment'
-Use apt install ros2 dependencies for this project
-    Args:
-      $1: project name
-#comment
-    distro=$1
-    sudo apt install -y ros-$distro-rqt-reconfigure \
-                        cmake \
-                        pkg-config \
-                        swig
+
+# Globals Parameters
+RECORD_FILE=$HOME/ROSKY2/install_script/record.txt
+UBUNTU_DISTRO=$(grep RELEASE /etc/lsb-release | awk -F '=' '{print $2}')
+ROS2_DISTRO=foxy
+
+
+#######################################
+# Use apt install ros dependencies for this project
+# Globals:
+#   UBUNTU_DISTRO
+# Arguments:
+#   None
+#######################################
+apt_install_ros_dependencies(){
+    if [ "$UBUNTU_DISTRO" == "18.04" ]
+    then
+        sudo apt install -y ros-melodic-rqt-reconfigure
+    else
+        echo "Package rqt-reconfigure no support binary file for foxy. "
+    fi
+    
 }
 
+#######################################
+# Use apt install build essential components
+# Globals:
+#   None
+# Arguments:
+#   None
+#######################################
 apt_install_dependencies(){
     sudo apt install -y python3-serial \
                         terminator \
@@ -39,70 +48,119 @@ apt_install_dependencies(){
                         gedit \
                         vim \
                         isc-dhcp-server \
-                        bridge-utils
+                        bridge-utils \
+                        cmake \
+                        pkg-config \
+                        swig
 
 }
 
+
+#######################################
+# Use pip3 install build essential components
+# Globals:
+#   None
+# Arguments:
+#   None
+#######################################
 pip3_install_dependencies(){
     sudo -H pip3 install ruamel.yaml \
-                         numpy
+                         numpy \
+                         virtualenv
+                         
 }
 
-
+#######################################
+# Install Ydlidar SDK
+# Globals:
+#   RECORD_FILE
+# Arguments:
+#   project name
+#######################################
 ydlidar_sdk_install(){
-<<'#comment'
-install Ydlidar SDK 
-    Args:
-      $1: project name
-#comment
-    project=$1
-    cd ${HOME}/${project}/setup && git clone https://github.com/YDLIDAR/YDLidar-SDK.git
-    mkdir -p ${HOME}/${project}/setup/YDLidar-SDK/build
-    cd ${HOME}/${project}/setup/YDLidar-SDK/build && cmake ..
+    if [ -d "${HOME}/${1}/setup/YDLidar-SDK" ]
+    then
+        mkdir -p ${HOME}/${1}/setup/YDLidar-SDK/build
+    else
+        git clone https://github.com/YDLIDAR/YDLidar-SDK.git ${HOME}/${1}/setup
+    fi 
+    cd ${HOME}/${1}/setup/YDLidar-SDK/build && cmake ..
     make
-    sudo make install
-    echo "YDLIDAR-SDK install done!"
-    cd ${HOME}
+    sudo make install | tee -a $RECORD_FILE
+    echo "YDLIDAR-SDK install done!" | tee -a $RECORD_FILE
 }
 
-config_ros_menu(){
-<<'#comment'
-Insert command in ~/ros_menu/config.yaml
-    Args:
-      $1: project name
-#comment
-    project=$1
-    cd ${HOME}/${project}/setup/python_scripts && python3 config.py
-    cd ${HOME}/${project}
 
-}
-
+#######################################
+# Add udev rules for Ydlidar and ominibot car
+# Globals:
+#   RECORD_FILE
+# Arguments:
+#   project name
+#######################################
 add_udev_rules(){
-<<'#comment'
-add udev rules for Ydlidar and ominibot car 
-    Args:
-      $1: project name
-#comment
-    project=$1
-    echo "Setup YDLidar X4 and ominibot car."
-    sudo $SHELL ${HOME}/${project}/ros2_ws/src/ydlidar_ros2_deiver/startup/initenv.sh
-    sudo $SHELL ${HOME}/${project}/ros2_ws/src/ominibotcar/startup/initenv.sh
+    echo "Setup YDLidar X4 and ominibot car." | tee -a $RECORD_FILE
+    sudo $SHELL ${HOME}/${1}/ros2_ws/src/ydlidar_ros2_deiver/startup/initenv.sh
+    sudo $SHELL ${HOME}/${1}/ros2_ws/src/ominibotcar/startup/initenv.sh
     sudo udevadm control --reload-rules
     sudo udevadm trigger
 }
 
 
-# Install dependencies
-apt_install_ros2 foxy
-apt_install_dependencies
-pip3_install_dependencies
-ydlidar_sdk_install ROSKY2
-config_ros_menu ROSKY2
-add_udev_rules ROSKY2
+#######################################
+# Configure ros_menu
+# Globals:
+#   RECORD_FILE
+# Arguments:
+#   None
+#######################################
+config_ros_menu(){
+    if [ -d "$HOME/ros_menu" ]
+    then
+        if [ -f "$HOME/ros_menu/config.yaml" ]
+        then
+            sudo rm -rf $HOME/ros_menu/config.yaml
+        fi
+    else
+        git clone https://github.com/adlink-ros/ros_menu.git ~/ros_menu
+    fi
+    cd $HOME/ros_menu && echo "n" | ./install.sh | tee -a $RECORD_FILE
+    sed -i "s:dashing:foxy:g" $HOME/ros_menu/config.yaml
 
-# change directory to ROSKY2
-cd ${HOME}/ROSKY2 
+    # Congigure virtualenv for Python3 from ubuntu 18.04
+    virtualenv -p python3 $HOME/virtualenv/python3 | tee -a $RECORD_FILE 
+    sed -i "24 a \ \ \ \ \ \ -\ source\ $HOME/virtualenv/python3/bin/activate" $HOME/ros_menu/config.yaml
 
+}
+
+
+#######################################
+# main function
+# Globals:
+#   UBUNTU_DISTRO
+#   ROS2_DISTRO
+# Arguments:
+#   None
+#######################################
+main(){   
+    touch $RECORD_FILE
+    echo -e "\n====== Start $(date) ======\n" >> $RECORD_FILE
+
+    apt_install_ros_dependencies
+    apt_install_dependencies
+    pip3_install_dependencies
+    ydlidar_sdk_install ROSKY2
+    add_udev_rules ROSKY2
+    config_ros_menu
+
+    echo -e "\n====== End $(date) ======\n" >> $RECORD_FILE
+
+    exit 0
+}
+
+
+# start the progress
+main
 
 
 
