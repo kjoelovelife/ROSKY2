@@ -110,6 +110,7 @@ add_udev_rules(){
 #######################################
 # Configure ros_menu
 # Globals:
+#   UBUNTU_DISTRO
 #   RECORD_FILE
 # Arguments:
 #   None
@@ -124,12 +125,17 @@ config_ros_menu(){
     else
         git clone https://github.com/adlink-ros/ros_menu.git ~/ros_menu
     fi
+    
     cd $HOME/ros_menu && echo "n" | ./install.sh | tee -a $RECORD_FILE
     sed -i "s:dashing:foxy:g" $HOME/ros_menu/config.yaml
 
     # Congigure virtualenv for Python3 from ubuntu 18.04
-    virtualenv -p python3 $HOME/virtualenv/python3 | tee -a $RECORD_FILE 
-    sed -i "24 a \ \ \ \ \ \ -\ source\ $HOME/virtualenv/python3/bin/activate" $HOME/ros_menu/config.yaml
+    if [ "$UBUNYU_DISTRO" == "18.04" ]
+    then
+        virtualenv -p python3 $HOME/virtualenv/python3 | tee -a $RECORD_FILE 
+        sed -i "24 a \ \ \ \ \ \ -\ source\ $HOME/virtualenv/python3/bin/activate" $HOME/ros_menu/config.yaml
+    fi
+
 
 }
 
