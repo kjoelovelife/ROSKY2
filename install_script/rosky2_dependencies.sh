@@ -103,8 +103,8 @@ ydlidar_sdk_install(){
 #######################################
 add_udev_rules(){
     echo "Setup YDLidar X4 and ominibot car." | tee -a ${RECORD_FILE}
-    sudo $SHELL ${HOME}/${1}/ros2_ws/src/ydlidar_ros2_deiver/startup/initenv.sh
-    sudo $SHELL ${HOME}/${1}/ros2_ws/src/ominibotcar/startup/initenv.sh
+    sudo $SHELL -c ". ${HOME}/${1}/ros2_ws/src/ydlidar_ros2_driver/startup/initenv.sh"
+    sudo $SHELL -c ". ${HOME}/${1}/ros2_ws/src/ominibot_car/startup/initenv.sh"
     sudo udevadm control --reload-rules
     sudo udevadm trigger
 }
