@@ -12,7 +12,7 @@
 
 
 # Globals Parameters
-RECORD_FILE=$HOME/ROSKY2/install_script/record.txt
+RECORD_FILE=${HOME}/ROSKY2/install_script/record.txt
 UBUNTU_DISTRO=$(grep RELEASE /etc/lsb-release | awk -F '=' '{print $2}')
 ROS2_DISTRO=foxy
 
@@ -25,7 +25,7 @@ ROS2_DISTRO=foxy
 #   None
 #######################################
 apt_install_ros_dependencies(){
-    if [ "$UBUNTU_DISTRO" == "18.04" ]
+    if [ "${UBUNTU_DISTRO}" == "18.04" ]
     then
         sudo apt install -y ros-melodic-rqt-reconfigure
     else
@@ -86,8 +86,8 @@ ydlidar_sdk_install(){
     fi 
     cd ${HOME}/${1}/setup/YDLidar-SDK/build && cmake ..
     make
-    sudo make install | tee -a $RECORD_FILE
-    echo "YDLIDAR-SDK install done!" | tee -a $RECORD_FILE
+    sudo make install | tee -a ${RECORD_FILE}
+    echo "YDLIDAR-SDK install done!" | tee -a ${RECORD_FILE}
 }
 
 
@@ -99,7 +99,7 @@ ydlidar_sdk_install(){
 #   project name
 #######################################
 add_udev_rules(){
-    echo "Setup YDLidar X4 and ominibot car." | tee -a $RECORD_FILE
+    echo "Setup YDLidar X4 and ominibot car." | tee -a ${RECORD_FILE}
     sudo $SHELL ${HOME}/${1}/ros2_ws/src/ydlidar_ros2_deiver/startup/initenv.sh
     sudo $SHELL ${HOME}/${1}/ros2_ws/src/ominibotcar/startup/initenv.sh
     sudo udevadm control --reload-rules
@@ -116,24 +116,27 @@ add_udev_rules(){
 #   None
 #######################################
 config_ros_menu(){
-    if [ -d "$HOME/ros_menu" ]
+    if [ -d "${HOME}/ros_menu" ]
     then
-        if [ -f "$HOME/ros_menu/config.yaml" ]
+        if [ -f "${HOME}/ros_menu/config.yaml" ]
         then
-            sudo rm -rf $HOME/ros_menu/config.yaml
+            sudo rm -rf ${HOME}/ros_menu/config.yaml
         fi
     else
         git clone https://github.com/adlink-ros/ros_menu.git ~/ros_menu
     fi
 
-    cd $HOME/ros_menu && echo "n" | ./install.sh | tee -a $RECORD_FILE
-    sed -i "s:dashing:foxy:g" $HOME/ros_menu/config.yaml
+    cd $HOME/ros_menu && echo "n" | ./install.sh | tee -a ${RECORD_FILE}
+    sed -i "s:dashing:foxy:g" ${HOME}/ros_menu/config.yaml
 
     # Congigure virtualenv for Python3 from ubuntu 18.04
-    if [ "$UBUNTU_DISTRO" == "18.04" ]
+    if [ "${UBUNTU_DISTRO}" == "18.04" ]
     then
-        virtualenv -p python3 $HOME/virtualenv/python3 | tee -a $RECORD_FILE 
-        sed -i "24 a \ \ \ \ \ \ -\ source\ $HOME/virtualenv/python3/bin/activate" $HOME/ros_menu/config.yaml
+        if [ -d "${HOME}/virtualenv" ]
+        then
+            virtualenv -p python3 ${HOME}/virtualenv/python3 | tee -a ${RECORD_FILE} 
+            sed -i "24 a \ \ \ \ \ \ -\ source\ ${HOME}/virtualenv/python3/bin/activate" ${HOME}/ros_menu/config.yaml
+        fi
     fi
 
 
@@ -143,8 +146,7 @@ config_ros_menu(){
 #######################################
 # main function
 # Globals:
-#   UBUNTU_DISTRO
-#   ROS2_DISTRO
+#   None
 # Arguments:
 #   None
 #######################################
