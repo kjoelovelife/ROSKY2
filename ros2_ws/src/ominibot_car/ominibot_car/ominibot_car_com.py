@@ -182,7 +182,7 @@ class OminibotCar(object):
                 except Exception:
                     self.error_flag = True
                     break
-                self.odom_decode(ser_in, 7)
+                self.odom_decode(ser_in, 9)
                 self._is_synced = True
             
             #====== battery data packet ======#
@@ -359,9 +359,9 @@ class OminibotCar(object):
         if self._odom_new_data == True:
             # data assign
             self._odom_new_data = False 
-            return {"seq": self.odom_seq, "encoder": self.odom}
+            return self.odom
         else:
-            return None
+            return [0, 0, 0, 0]
 
     def get_battery_data(self):
         if self._battery_new_data == True:
