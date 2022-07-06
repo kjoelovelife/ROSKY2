@@ -64,9 +64,12 @@ apt_install_dependencies(){
 #   None
 #######################################
 pip3_install_dependencies(){
-    sudo -H pip3 install ruamel.yaml \
-                         numpy \
-                         virtualenv
+    pip3 install ruamel.yaml \
+                 numpy \
+                 virtualenv \
+                 empy \
+                 catkin_pkg \
+                 lark
                          
 }
 
@@ -135,11 +138,23 @@ config_ros_menu(){
         if [ -d "${HOME}/virtualenv" ]
         then
             virtualenv -p python3 ${HOME}/virtualenv/python3 | tee -a ${RECORD_FILE} 
-            sed -i "24 a \ \ \ \ \ \ -\ source\ ${HOME}/virtualenv/python3/bin/activate" ${HOME}/ros_menu/config.yaml
+            sed -i "24 a \ \ \ \ \ \ -\ source\ ${HOME}/virtualenv/python3/bin/activate\n\ \ \ \ \ \ -\ export OPENBLAS_CORETYPE=ARMV8" \
+              ${HOME}/ros_menu/config.yaml
         fi
     fi
 
 
+}
+
+#######################################
+# Modified syntax in setup.cfg with in all package.
+# Globals:
+#   None
+# Arguments:
+#   project name
+#######################################
+modified_sytax_in_setup_cfg(){
+    sed -i "s:script\-dir:script_dir:g;s:install\-scripts:install_scripts:g" $(find ${HOME}/${1}/ros2_ws -iname "setup.cfg" -type f)
 }
 
 
