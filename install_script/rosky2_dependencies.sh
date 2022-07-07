@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Copyright (c) 2021 Wei-Chih Lin(weichih.lin@protonmail.com)
-#   This file will help you setup the environment for ROSKY2 
+#   This file will help you install dependencies for ROSKY2 
 #   Support platform:
 #     1. reComputer J1010 with Jetpack 4.6 
 #        (https://www.icshop.com.tw/product-page.php?28703)
@@ -137,7 +137,7 @@ config_ros_menu(){
     then
         if [ -d "${HOME}/virtualenv" ]
         then
-            virtualenv -p python3 ${HOME}/virtualenv/python3 | tee -a ${RECORD_FILE} 
+            virtualenv --system-site-packages -p python3 ${HOME}/virtualenv/python3 | tee -a ${RECORD_FILE} 
             sed -i "24 a \ \ \ \ \ \ -\ source\ ${HOME}/virtualenv/python3/bin/activate\n\ \ \ \ \ \ -\ export OPENBLAS_CORETYPE=ARMV8" \
               ${HOME}/ros_menu/config.yaml
         fi
@@ -154,7 +154,7 @@ config_ros_menu(){
 #   project name
 #######################################
 modified_sytax_in_setup_cfg(){
-    sed -i "s:script\-dir:script_dir:g;s:install\-scripts:install_scripts:g" $(find ${HOME}/${1}/ros2_ws -iname "setup.cfg" -type f)
+    sudo sed -i "s:script\-dir:script_dir:g;s:install\-scripts:install_scripts:g" $(find ${HOME}/${1}/ros2_ws -iname "setup.cfg" -type f)
 }
 
 
