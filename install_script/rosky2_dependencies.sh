@@ -159,6 +159,22 @@ modified_sytax_in_setup_cfg(){
     sudo sed -i "s:script\-dir:script_dir:g;s:install\-scripts:install_scripts:g" $(find ${HOME}/${1}/ros2_ws -iname "setup.cfg" -type f)
 }
 
+#######################################
+# Install noMachine
+# Globals:
+#   None
+# Arguments:
+#   project name
+#######################################
+install_nomachine(){
+    if [ -d "/usr/NX" ]
+    then
+        echo -e "\nSkip to install noMachine because it has installed."
+    else
+        wget https://www.nomachine.com/free/arm/v8/deb -O ${HOME}/Downloads/nomachine.deb
+        sudo dpkg -i ${HOME}/Downloads/nomachine.deb
+    fi 
+}
 
 #######################################
 # main function
@@ -177,6 +193,7 @@ main(){
     ydlidar_sdk_install ROSKY2
     add_udev_rules ROSKY2
     config_ros_menu
+    install_nomachine
 
     echo -e "\n====== End $(date) ======\n" >> $RECORD_FILE
 
