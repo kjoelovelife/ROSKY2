@@ -1,18 +1,19 @@
 #!/bin/bash
 #
 # Copyright (c) 2021 Wei-Chih Lin(weichih.lin@protonmail.com)
-#   This file will help you install dependencies for ROSKY2 
-#   Support platform:
-#     1. reComputer J1010 with Jetpack 4.6 
-#        (https://www.icshop.com.tw/product-page.php?28703)
-#     2. Jetson Nano Developer kit for third party Ubuntu 20.04 with Jetpack 4.3
-#        (https://forums.developer.nvidia.com/t/xubuntu-20-04-focal-fossa-l4t-r32-3-1-custom-image-for-the-jetson-nano/121768)
+#
+# This file will help you install dependencies for ROSKY2 
+# Support platform:
+#   1. reComputer J1010 with Jetpack 4.6 
+#      (https://www.icshop.com.tw/product-page.php?28703)
+#   2. Jetson Nano Developer kit for third party Ubuntu 20.04 with Jetpack 4.3
+#      (https://forums.developer.nvidia.com/t/xubuntu-20-04-focal-fossa-l4t-r32-3-1-custom-image-for-the-jetson-nano/121768)
 #
 
 
 
 # Globals Parameters
-RECORD_FILE=${HOME}/ROSKY2/install_script/record.txt
+RECORD_FILE=${HOME}/ROSKY2/install_script/install_dependencies.log
 UBUNTU_DISTRO=$(grep RELEASE /etc/lsb-release | awk -F '=' '{print $2}')
 ROS2_DISTRO=foxy
 
@@ -29,7 +30,7 @@ apt_install_ros_dependencies(){
     then
         sudo apt install -y ros-melodic-rqt-reconfigure
     else
-        echo "Package rqt-reconfigure no support binary file for foxy. "
+        echo "Package rqt-reconfigure no support binary file for ROS2-Foxy. "
     fi
     
 }
