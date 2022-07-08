@@ -131,11 +131,11 @@ config_ros_menu(){
     fi
 
     cd $HOME/ros_menu && echo "n" | ./install.sh | tee -a ${RECORD_FILE}
-    sed -i "s:dashing:foxy:g" ${HOME}/ros_menu/config.yaml
 
     # Congigure virtualenv for Python3 from ubuntu 18.04
     if [ "${UBUNTU_DISTRO}" == "18.04" ]
     then
+        sed -i "s:dashing:foxy:g" ${HOME}/ros_menu/config.yaml
         if [ -d "${HOME}/virtualenv" ]
         then
             virtualenv --system-site-packages -p python3 ${HOME}/virtualenv/python3 | tee -a ${RECORD_FILE} 
@@ -143,6 +143,7 @@ config_ros_menu(){
               ${HOME}/ros_menu/config.yaml
         fi
     fi
+    ./ROSKY2/setup/shell_scripts/set_project.sh
 
 
 }
