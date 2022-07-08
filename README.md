@@ -36,10 +36,10 @@ Suggest visiting in order:
 
 | Example Name | Description  |
 | ------------ | -------------|
-| [0.0 setup environment with Jetson nano 4G Developer Kit](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/0_0_setup_environment_with_jetson_nano.md) | if you use Jetson nano 4G Developer Kit, please use this to setup the operating environment. |
-| [0.1 setup environment with reComputer](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/0_1_setup_environment_with_recomputer.md)  |  if you use reComputer-J1010, please use this to setup the operating environment. |
+| [0.0 setup environment with Jetson nano 4G Developer Kit](readme_resource/0_0_setup_environment_with_jetson_nano.md) | if you use Jetson nano 4G Developer Kit, please use this to setup the operating environment. |
+| [0.1 setup environment with reComputer](readme_resource/0_1_setup_environment_with_recomputer.md)  |  if you use reComputer-J1010, please use this to setup the operating environment. |
 | [1. Teleop ROSKY2](https://hackmd.io/@weichih-lin/ROSKY2_teleop_with_keyboard)           |  teleop ROSKY2 with your keyboard  |
-| [2. wall_follower](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/2_wall_follower.md)| Learn how to use ROS2 to control ROSKY |
+| [2. wall_follower](readme_resource/2_wall_follower.md)| Learn how to use ROS2 to control ROSKY |
 | 3. rosky2_slam | to be continued ...  |
 | 4. rosky2_nav  | to be continued ...  |
 
