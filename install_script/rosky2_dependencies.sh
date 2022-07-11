@@ -169,7 +169,7 @@ modified_sytax_in_setup_cfg(){
 install_nomachine(){
     if [ -d "/usr/NX" ]
     then
-        echo -e "\nSkip to install noMachine because it had already installed."
+        echo -e "\nSkip to install NoMachine because it had already installed."
     else
         wget https://www.nomachine.com/free/arm/v8/deb -O ${HOME}/Downloads/nomachine.deb
         sudo dpkg -i ${HOME}/Downloads/nomachine.deb
