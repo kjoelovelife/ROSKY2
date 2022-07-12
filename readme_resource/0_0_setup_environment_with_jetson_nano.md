@@ -81,9 +81,9 @@ source ~/ROSKY2/install_script/rosky2_dependencies.sh
 
 ## 4. build project ROSKY2 workspace
 This step is the last step and make sure you have done:
-1. [Write Image to the microSD Card](https://hackmd.io/p3Exut9cTGi54Uw9qBQGpQ#1-Write-Image-to-the-microSD-Card)
-2. [Install Ubuntu 20.04 on ROSKY](https://hackmd.io/p3Exut9cTGi54Uw9qBQGpQ#2-Install-Ubuntu-2004-on-ROSKY)
-3. [Install ROS1 and ROS2 through ros_menu and dependencies for project ROSKY2](https://hackmd.io/p3Exut9cTGi54Uw9qBQGpQ#3-Install-ROS1-and-ROS2-through-ros_menu-and-dependencies-for-project-ROSKY2)
+1. [Write Image to the microSD Card](#1-write-image-to-the-microsd-card)
+2. [Install Ubuntu 20.04 on ROSKY](#2-install-ubuntu-2004-on-rosky)
+3. [Install ROS1 and ROS2 through ros_menu and dependencies for project ROSKY2](#3-install-ros1-and-ros2-through-ros_menu-and-dependencies-for-project-rosky2)
 
 Ok! Now open the terminal and choose **2** to run the ROS2 environment, and then type command below:
 
@@ -108,4 +108,8 @@ cd ~/ROSKY2/setup/python_scripts && python3 config.py
 
 ![edit_config](https://i.imgur.com/mHAG5jH.png)
 
-We finish setting up! Now can visit [1_wall_follower.md](https://github.com/kjoelovelife/ROSKY2/blob/main/readme_resource/1_wall_follower.md) to use ROS2 to control ROSKY2!
+## Next
+
+User can continue the note -> [CH 1: ROSKY2 - remotely log in](1_remotely_log_in.md)
+
+Please have fun to use ROSKY2 :)

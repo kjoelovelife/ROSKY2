@@ -19,7 +19,7 @@ The first thing need to to do is expanding the memory space. Please prepare a US
 
 You can use the command below on terminal to check the memory space:
 ```bash=
-df -h
+$ df -h
 ```
 
 The image below is my memory space in the reComputer-J1010, and the Size of /dev/sda1 is 59G:
@@ -30,7 +30,7 @@ The image below is my memory space in the reComputer-J1010, and the Size of /dev
 ### 1-3. Check the Jetpack version
 Open the terminal and check the Jetpack version, please type the command below:
 ```bash=
-sudo apt-cache show nvidia-jetpack
+$ sudo apt-cache show nvidia-jetpack
 ```
 The Jetpack version must be **>= 4.6**, and the image below is my Jetpack version
 
@@ -47,11 +47,10 @@ Please feel free to check the project [ros2_development_tools](https://github.co
 ## 3. Download the project ROSKY2
 Awesome! After installing ROS2-Foxy, you have to donwload the projcet ROSKY2 through git. Please open the terminal and type the command below to clone the repository of ROSKY2:
 ```bash=
-git clone https://github.com/kjoelovelife/ROSKY2
+$ git clone https://github.com/kjoelovelife/ROSKY2
 ```
 
 Now you can find the project ROSKY2 in your $HOME directory.
-
 
 
 ## 4. Setup the operating environment for the project ROSKY2 
@@ -59,7 +58,7 @@ Once you download the project ROSKY2, next step is setting up the operating envi
 
 There are many dependencies with the project ROSKY2, it waste time to manually install those. You can use a script to isntall those automatically. Please open the terminal and type the command below to run the script:
 ```bash=
-./ROSKY2/install_script/rosky2_dependencies.sh
+$ ./ROSKY2/install_script/rosky2_dependencies.sh
 ```
 All right. Now everything is ready to run the ROSKY2. Before doing that, I want to introduce a convenient tool, [ros_menu](https://github.com/Adlink-ROS/ros_menu). It's from ADLINK and can help you to choose the operating enviroment you want to use. Now you can use ros_menu after successfully running the script **"rosky2_dependencies.sh"**.
 
@@ -67,7 +66,13 @@ Please re-open the terminal and then you can find your termial will be the simil
 
 ![ros_menu](https://i.imgur.com/Wwql4dL.png)
 
-You can type the number to choose the environment you want, you will type 2 to choose the environment while you want to run the project ROSKY2.
+You can type the number to choose the environment you want, you will type **2** to choose the environment while you want to run the project ROSKY2.
 The image below is an example for ready to run the project ROSKY2 with reComputer-J1010.
 
 ![ready to run the project ROSKY2](https://i.imgur.com/5ET2MjU.png)
+
+## Next
+
+User can continue the note -> [CH 1: ROSKY2 - remotely log in](1_remotely_log_in.md)
+
+Please have fun to use ROSKY2 :)

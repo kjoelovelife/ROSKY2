@@ -1,5 +1,3 @@
-# ROSKY2 information
-
 This project is about how to use ROS2 to control [ROSKY2](https://www.icshop.com.tw/product-page.php?28182)
 
 ![ROSKY2](https://i.imgur.com/WU13drn.jpg)
@@ -36,20 +34,22 @@ Suggest visiting in order:
 
 | Example Name | Description  |
 | ------------ | -------------|
-| [0.0 setup environment with Jetson nano 4G Developer Kit](readme_resource/0_0_setup_environment_with_jetson_nano.md) | if you use Jetson nano 4G Developer Kit, please use this to setup the operating environment. |
-| [0.1 setup environment with reComputer](readme_resource/0_1_setup_environment_with_recomputer.md)  |  if you use reComputer-J1010, please use this to setup the operating environment. |
-| [1. Teleop ROSKY2](https://hackmd.io/@weichih-lin/ROSKY2_teleop_with_keyboard)           |  teleop ROSKY2 with your keyboard  |
-| [2. wall_follower](readme_resource/2_wall_follower.md)| Learn how to use ROS2 to control ROSKY |
-| 3. rosky2_slam | to be continued ...  |
-| 4. rosky2_nav  | to be continued ...  |
+| [CH 0.0: ROSKY2 - setup environment with Jetson Nano 4G Developer Kit](readme_resource/0_0_setup_environment_with_jetson_nano.md) | if you use **Jetson nano 4G Developer Kit**, please use this to setup the operating environment. |
+| [CH 0.1: ROSKY2 - setup environment with reComputer"](readme_resource/0_1_setup_environment_with_recomputer.md)  |  if you use **reComputer-J1010**, please use this to setup the operating environment. |
+| [CH 1: ROSKY2 - remotely log in](readme_resource/1_remotely_log_in.md) | Use NoMachine in the host machine to log in remotely|
+| [CH 2: ROSKY2 - keyboard teleop](readme_resource/2_keyboard_teleop.md)         |  Keyboard teleop  |
+| [CH 3: wall_follower](readme_resource/3_wall_follower.md)| ROSKY2 can go along with the wall  |
+| CH4: rosky2_slam | to be continued ...  |
+| CH5: rosky2_nav  | to be continued ...  |
 
 ## Update Log
 ### 2022/07/08
 > Release version 1.1.0, now can use the platform reComputer-J1010 to run this project.
 
+
 ### 2021/10/18
 > Release version 1.0.0, can use ROSKY2 to learn the concept of ROS2.
-> More information can check the folder readme_resource
+> More information can visit 0_setup_environment.md and 1_wall_follower.md in readme_resourse. 
 
 ## License and Disclaimer
 Copyright (c) 2021 Wei-Chih Lin(weichih.lin@protonmail.com)
