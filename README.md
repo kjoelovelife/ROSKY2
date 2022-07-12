@@ -1,3 +1,8 @@
+# Important! This is a discontinued repository.
+**If you want to get the latest version, please feel free to check the repository here: https://github.com/CIRCUSPi/ROSKY2**
+
+---
+
 This project is about how to use ROS2 to control [ROSKY2](https://www.icshop.com.tw/product-page.php?28182)
 
 ![ROSKY2](https://i.imgur.com/WU13drn.jpg)
