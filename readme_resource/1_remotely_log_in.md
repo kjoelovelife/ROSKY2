@@ -121,7 +121,7 @@ Please click the tool "Network" on right top corner again, and this time choose 
 
 ### Step 3-3. Add remote machine address in NoMachine
 
-All right, now repeat the actions in [step 2-3 this note](#step-2-3-add-remote-machine-in-nomachine) to add new machine address. And after repeating the actionss in [step 2-4 this note](#Step-2-4-Remotely-Operateing-ROSKY2-through-NoMachine), user can use remote desktop in NoMachine through Wi-Fi Network. 
+All right, now repeat the actions in [step 2-3 this note](#step-2-3-add-remote-machine-address-in-nomachine) to add new machine address. And after repeating the actionss in [step 2-4 this note](#step-2-4-remotely-operateing-rosky2-through-nomachine), user can use remote desktop in NoMachine through Wi-Fi Network. 
 
 ## Next
 
