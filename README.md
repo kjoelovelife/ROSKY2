@@ -35,7 +35,7 @@ Suggest visiting in order:
 | Example Name | Description  |
 | ------------ | -------------|
 | [CH 0.0: ROSKY2 - setup environment with Jetson Nano 4G Developer Kit](readme_resource/0_0_setup_environment_with_jetson_nano.md) | if you use **Jetson nano 4G Developer Kit**, please use this to setup the operating environment. |
-| [CH 0.1: ROSKY2 - setup environment with reComputer"](readme_resource/0_1_setup_environment_with_recomputer.md)  |  if you use **reComputer-J1010**, please use this to setup the operating environment. |
+| [CH 0.1: ROSKY2 - setup environment with reComputer](readme_resource/0_1_setup_environment_with_recomputer.md)  |  if you use **reComputer-J1010**, please use this to setup the operating environment. |
 | [CH 1: ROSKY2 - remotely log in](readme_resource/1_remotely_log_in.md) | Use NoMachine in the host machine to log in remotely|
 | [CH 2: ROSKY2 - keyboard teleop](readme_resource/2_keyboard_teleop.md)         |  Keyboard teleop  |
 | [CH 3: wall_follower](readme_resource/3_wall_follower.md)| ROSKY2 can go along with the wall  |
