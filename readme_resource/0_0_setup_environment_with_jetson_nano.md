@@ -1,4 +1,4 @@
-# Setup operating environment with ROSKY2
+# CH 0-0: ROSKY2 - setup operating environment with Jetson Nano Developer 4G kit
 This file will tell you how to setup the Project "ROSKY2" with Jetson nano developer kit.
 
 
