@@ -23,7 +23,7 @@ Different SBC had to finish different notes:
 | Single Board Computer(SBC)   | Note had to read first |
 | ---------------------------- | ------------------- |
 | [Jetson Nano Developer Kit](https://www.icshop.com.tw/product-page.php?27812)| [CH 0.0: ROSKY2 - setup environment with Jetson Nano 4G Developer Kit](0_0_setup_environment_with_jetson_nano.md) |
-| [reComputer-J1010](https://www.icshop.com.tw/product-page.php?28703)| [CH 0.1: ROSKY2 - setup environment with reComputer"](0_1_setup_environment_with_recomputer.md) |
+| [reComputer-J1010](https://www.icshop.com.tw/product-page.php?28703)| [CH 0.1: ROSKY2 - setup environment with reComputer](0_1_setup_environment_with_recomputer.md) |
 
 
 This note will use these acronym below to stand for:
